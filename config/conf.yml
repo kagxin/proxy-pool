@@ -1,0 +1,15 @@
+prod:
+  Mysql:
+    Port: 3306
+    Host: localhost
+    Username: root
+    Password: root
+    Database: proxy_pool
+
+  VerifyURL:
+    - Schema: http
+      TimeOut: 5
+      URL: http://httpbin.org/get
+    - Schema: https
+      TimeOut: 5
+      URL: https://httpbin.org/get
