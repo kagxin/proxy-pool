@@ -25,6 +25,7 @@ func (c *Checker) CheckProxyAvailable(proxy *model.Proxy) (bool, error) {
 		log.Errorf("url.Parse error:%#v", err)
 		return false, fmt.Errorf("url.Parse error %#v", err)
 	}
+	// TODO: config file timeout
 	client := &http.Client{
 		Timeout:   time.Second * 5,
 		Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)},
@@ -32,7 +33,6 @@ func (c *Checker) CheckProxyAvailable(proxy *model.Proxy) (bool, error) {
 
 	request, err := http.NewRequest("GET", testURL, nil)
 	if err != nil {
-		// "http.NewRequest %s, error:%#v", CheckURL, err
 		return false, err
 	}
 	request.Header.Add("User-Agent", model.UA)
@@ -40,7 +40,7 @@ func (c *Checker) CheckProxyAvailable(proxy *model.Proxy) (bool, error) {
 
 	res, err := client.Do(request)
 	if err != nil {
-		log.Errorf("client.Do %s, error:%#v", testURL, err.Error())
+		log.Infof("client.Do %s, error:%#v", proxy.IP, err.Error())
 		return false, err
 	}
 	defer res.Body.Close()
@@ -60,7 +60,6 @@ func (c *Checker) CheckProxyAvailable(proxy *model.Proxy) (bool, error) {
 	if err != nil {
 		return false, nil
 	}
-	// fmt.Println(string(buf.Bytes()))
 
 	return true, nil
 }

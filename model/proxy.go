@@ -10,6 +10,7 @@ type (
 		Port      int       `gorm:"column:port" json:"port"`
 		Schema    string    `gorm:"column:schema" json:"schema"`
 		From      int       `gorm:"column:from" json:"from"`
+		CheckTime time.Time `gorm:"column:check_time" json:"check_time"`
 		IsDeleted bool      `gorm:"column:is_deleted" json:"is_deleted"`
 		CTime     time.Time `gorm:"column:ctime" json:"ctime"`
 		MTime     time.Time `gorm:"column:mtime" json:"mtime"`

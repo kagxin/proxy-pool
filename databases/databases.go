@@ -10,7 +10,7 @@ import (
 
 // DB 结构体
 type DB struct {
-	DB *gorm.DB
+	Mysql *gorm.DB
 }
 
 // New 初始化gorm db
@@ -23,10 +23,11 @@ func New(mysql *config.MysqlConfig) *DB {
 		mysql.Username, mysql.Password, mysql.Host, mysql.Port, mysql.Database)
 	fmt.Println(sqlString)
 	db, err = gorm.Open("mysql", sqlString)
-
+	// TODO: to config file
+	db.LogMode(true)
 	if err != nil {
 		log.Fatalf("mysql connect error %v", err)
 	}
 
-	return &DB{DB: db}
+	return &DB{Mysql: db}
 }

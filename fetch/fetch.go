@@ -33,12 +33,6 @@ func NewFetcher(db *databases.DB, conf *config.Config, check *check.Checker) *Fe
 // FetchAllAndCheck 拉取所有的代理并检查可用性之后入库
 func (f *Fetcher) FetchAllAndCheck() {
 	var allProxys []*model.Proxy
-	// proxys, err := GetQuanWang()
-	// if err == nil {
-	// 	allProxys = append(allProxys, proxys...)
-	// } else {
-	// 	log.Errorf("拉取全网代理失败 err:%#v", err)
-	// }
 	proxys, err := GetIPKu()
 
 	if err == nil {
@@ -46,6 +40,7 @@ func (f *Fetcher) FetchAllAndCheck() {
 	} else {
 		log.Errorf("拉取西池失败 err:%#v", err)
 	}
+	// TODO: 并发
 	for _, proxy := range allProxys {
 		ok, err := f.checker.CheckProxyAvailable(proxy)
 		if err != nil {
@@ -56,16 +51,16 @@ func (f *Fetcher) FetchAllAndCheck() {
 			continue
 		}
 		// 创建或更新 proxy
-		if err := f.db.DB.Table("proxy").Where("ip=?", proxy.IP).Where("port=?", proxy.Port).First(&model.Proxy{}).Error; err != nil {
+		if err := f.db.Mysql.Table("proxy").Where("ip=?", proxy.IP).Where("port=?", proxy.Port).First(&model.Proxy{}).Error; err != nil {
 			if gorm.IsRecordNotFoundError(err) {
-				if err := f.db.DB.Omit("ctime", "mtime").Create(proxy).Error; err != nil {
+				if err := f.db.Mysql.Omit("ctime", "mtime", "check_time").Create(proxy).Error; err != nil {
 					log.Errorf("f.db.DB.Create ip:%s, port:%d error:%#v", proxy.IP, proxy.Port, err.Error())
 				}
 			} else {
 				log.Errorf("db.DB.Table first %#v", err.Error())
 			}
 		} else {
-			if err := f.db.DB.Table("proxy").Where("ip=?", proxy.IP).Where("port=?", proxy.Port).Omit("ctime", "mtime").Updates(map[string]interface{}{
+			if err := f.db.Mysql.Table("proxy").Where("ip=?", proxy.IP).Where("port=?", proxy.Port).Omit("ctime", "mtime", "check_time").Updates(map[string]interface{}{
 				"schema":     proxy.Schema,
 				"is_deleted": false,
 			}).Error; err != nil {
