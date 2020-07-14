@@ -7,6 +7,7 @@ import (
 	"proxy-pool/model"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/antchfx/htmlquery"
@@ -32,42 +33,56 @@ func NewFetcher(db *databases.DB, conf *config.Config, check *check.Checker) *Fe
 
 // FetchAllAndCheck 拉取所有的代理并检查可用性之后入库
 func (f *Fetcher) FetchAllAndCheck() {
+	// TODO: 并发数config file
+	var ch = make(chan struct{}, 10)
+	var wg sync.WaitGroup
 	var allProxys []*model.Proxy
-	proxys, err := GetIPKu()
-
-	if err == nil {
-		allProxys = append(allProxys, proxys...)
-	} else {
-		log.Errorf("拉取西池失败 err:%#v", err)
+	var proxySites = []func() ([]*model.Proxy, error){GetIPKu, GetIPYunDaiLi, GetQuanWang, GetXiChi}
+	for _, GetFunc := range proxySites {
+		proxys, err := GetFunc()
+		if err == nil {
+			allProxys = append(allProxys, proxys...)
+		} else {
+			log.Errorf("拉取西池失败 err:%#v", err)
+		}
 	}
-	// TODO: 并发
+
 	for _, proxy := range allProxys {
-		ok, err := f.checker.CheckProxyAvailable(proxy)
-		if err != nil {
-			log.Errorf("check.CheckProxyAvailable proxy:%s:%d, error %#v", proxy.IP, proxy.Port, err.Error())
-			continue
-		}
-		if !ok {
-			continue
-		}
-		// 创建或更新 proxy
-		if err := f.db.Mysql.Table("proxy").Where("ip=?", proxy.IP).Where("port=?", proxy.Port).First(&model.Proxy{}).Error; err != nil {
-			if gorm.IsRecordNotFoundError(err) {
-				if err := f.db.Mysql.Omit("ctime", "mtime", "check_time").Create(proxy).Error; err != nil {
-					log.Errorf("f.db.DB.Create ip:%s, port:%d error:%#v", proxy.IP, proxy.Port, err.Error())
+		ch <- struct{}{}
+		wg.Add(1)
+		go func(proxy *model.Proxy) {
+			defer func() {
+				<-ch
+				wg.Done()
+			}()
+			ok, err := f.checker.CheckProxyAvailable(proxy)
+			if err != nil {
+				log.Errorf("check.CheckProxyAvailable proxy:%s:%d, error %#v", proxy.IP, proxy.Port, err.Error())
+				return
+			}
+			if !ok {
+				return
+			}
+			// 创建或更新 proxy
+			if err := f.db.Mysql.Table("proxy").Where("ip=?", proxy.IP).Where("port=?", proxy.Port).First(&model.Proxy{}).Error; err != nil {
+				if gorm.IsRecordNotFoundError(err) {
+					if err := f.db.Mysql.Omit("ctime", "mtime", "check_time").Create(proxy).Error; err != nil {
+						log.Errorf("f.db.DB.Create ip:%s, port:%d error:%#v", proxy.IP, proxy.Port, err.Error())
+					}
+				} else {
+					log.Errorf("db.DB.Table first %#v", err.Error())
 				}
 			} else {
-				log.Errorf("db.DB.Table first %#v", err.Error())
+				if err := f.db.Mysql.Table("proxy").Where("ip=?", proxy.IP).Where("port=?", proxy.Port).Omit("ctime", "mtime", "check_time").Updates(map[string]interface{}{
+					"schema":     proxy.Schema,
+					"is_deleted": false,
+				}).Error; err != nil {
+					log.Errorf("proxy update err:%#v", err.Error())
+				}
 			}
-		} else {
-			if err := f.db.Mysql.Table("proxy").Where("ip=?", proxy.IP).Where("port=?", proxy.Port).Omit("ctime", "mtime", "check_time").Updates(map[string]interface{}{
-				"schema":     proxy.Schema,
-				"is_deleted": false,
-			}).Error; err != nil {
-				log.Errorf("proxy update err:%#v", err.Error())
-			}
-		}
+		}(proxy)
 	}
+	wg.Wait()
 }
 
 // GetQuanWang 获取全网代理的免费代理
@@ -99,6 +114,7 @@ func GetQuanWang() ([]*model.Proxy, error) {
 			return nil, err
 		}
 		schema := htmlquery.InnerText(htmlquery.FindOne(h, `./td[3]/a/text()`))
+		// TODO: from site
 		proxys = append(proxys, &model.Proxy{
 			IP:     ipStr,
 			Port:   port,

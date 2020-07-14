@@ -27,7 +27,7 @@ func (c *Checker) CheckProxyAvailable(proxy *model.Proxy) (bool, error) {
 	}
 	// TODO: config file timeout
 	client := &http.Client{
-		Timeout:   time.Second * 5,
+		Timeout:   time.Second * 10,
 		Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)},
 	}
 

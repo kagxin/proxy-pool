@@ -41,6 +41,10 @@ func (c *Checker) CheckAll() {
 		ch <- struct{}{}
 		wg.Add(1)
 		go func(proxy *model.Proxy) {
+			defer func() {
+				<-ch
+				wg.Done()
+			}()
 			ok, err := c.CheckProxyAvailable(proxy)
 			// 代理失效 标记删除
 			if err != nil || !ok {
@@ -59,8 +63,7 @@ func (c *Checker) CheckAll() {
 				}
 				log.Infof("proxy check ok,IP:%s, Port:%d\n", proxy.IP, proxy.Port)
 			}
-			<-ch
-			wg.Done()
+
 		}(proxy)
 	}
 	wg.Wait()
