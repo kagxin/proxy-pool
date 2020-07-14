@@ -11,14 +11,13 @@ import (
 // Config 配置结构体
 type Config struct {
 	Mysql     *MysqlConfig
-	VerifyURL []*VerifyURL
+	VerifyURL *VerifyURL
 }
 
 // VerifyURL 校验proxy可用性的地址
 type VerifyURL struct {
-	Schema  string
-	TimeOut int
-	URL     string
+	HTTP  string
+	HTTPS string
 }
 
 // MysqlConfig mysql 配置信息

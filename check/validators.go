@@ -16,9 +16,9 @@ import (
 func (c *Checker) CheckProxyAvailable(proxy *model.Proxy) (bool, error) {
 	var testURL string
 	if proxy.Schema == model.ProxyTypeHTTP {
-		testURL = "http://httpbin.org/get"
+		testURL = c.Conf.VerifyURL.HTTP
 	} else {
-		testURL = "https://httpbin.org/get"
+		testURL = c.Conf.VerifyURL.HTTPS
 	}
 	proxyURL, err := url.Parse(fmt.Sprintf("%s://%s:%d", proxy.Schema, proxy.IP, proxy.Port))
 	if err != nil {
@@ -58,7 +58,7 @@ func (c *Checker) CheckProxyAvailable(proxy *model.Proxy) (bool, error) {
 	var rsp model.HTTPBinRsp
 	err = json.Unmarshal(buf.Bytes(), &rsp)
 	if err != nil {
-		return false, err
+		return false, nil
 	}
 	// fmt.Println(string(buf.Bytes()))
 

@@ -23,8 +23,8 @@ func Test_CheckProxyAvailable(t *testing.T) {
 
 	proxy := &model.Proxy{
 		Schema: "http",
-		IP:     "218.59.139.238",
-		Port:   80,
+		IP:     "45.77.65.128",
+		Port:   8080,
 	}
 	checker := NewChecker(db, conf)
 	ok, err := checker.CheckProxyAvailable(proxy)

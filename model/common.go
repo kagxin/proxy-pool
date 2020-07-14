@@ -6,6 +6,12 @@ var (
 
 	// QuanWangFetchURL 全网代理的
 	QuanWangFetchURL = "http://www.goubanjia.com/"
+	// KuaiDaiLiFetchURL 西池代理
+	KuaiDaiLiFetchURL = "https://www.kuaidaili.com/free"
+	// YunDaiLiURL IP海
+	YunDaiLiURL = "http://www.ip3366.net/"
+	// IPKuURL 库
+	IPKuURL = "https://ip.jiangxianli.com/"
 	// UA User-Agent
 	UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36"
 	// ProxyTypeUnknow 未知代理类型

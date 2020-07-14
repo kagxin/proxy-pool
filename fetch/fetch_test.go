@@ -27,6 +27,18 @@ func Test_GetQuanWang(t *testing.T) {
 	GetQuanWang()
 }
 
+func Test_GetXiChi(t *testing.T) {
+	GetXiChi()
+}
+
+func Test_GetIPYunDaiLi(t *testing.T) {
+	GetIPYunDaiLi()
+}
+
+func Test_GetIPKu(t *testing.T) {
+	GetIPKu()
+}
+
 func Test_FetchAllAndCheck(t *testing.T) {
 	os.Setenv("CONF", "/Users/kangxin/Program/github/proxy-pool/config/")
 	conf := config.New()
