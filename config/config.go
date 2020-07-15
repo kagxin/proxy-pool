@@ -53,14 +53,14 @@ func New() *Config {
 	var config = &Config{}
 	var mysql = &MysqlConfig{}
 	viper.AutomaticEnv()
-	mysql.Host = viper.GetString("HOST")
-	mysql.Port = viper.GetInt("PORT")
-	mysql.Username = viper.GetString("USERNAME")
-	mysql.Password = viper.GetString("PASSWORD")
-	mysql.Database = viper.GetString("DATABASE")
+	mysql.Host = viper.GetString("MYSQL_HOST")
+	mysql.Port = viper.GetInt("MYSQL_PORT")
+	mysql.Username = viper.GetString("MYSQL_USERNAME")
+	mysql.Password = viper.GetString("MYSQL_PASSWORD")
+	mysql.Database = viper.GetString("MYSQL_DATABASE")
 	config.Mysql = mysql
 
-	confPath := viper.GetString("CONFIG_FILE")
+	confPath := viper.GetString("PROXY_POOL_CONFIG_FILE")
 	viper.SetConfigFile(confPath) // 读取yaml配置文件
 	viper.SetConfigType("yaml")
 	err := viper.ReadInConfig() // 根据以上配置读取加载配置文件

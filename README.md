@@ -25,12 +25,12 @@ services:
       - 9001:9001
     environment:
       - TZ=Asia/Shanghai
-      - CONFIG_FILE=/etc/conf.yaml
-      - HOST=****
-      - PORT=3306
-      - USERNAME=****
-      - PASSWORD=****
-      - DATABASE=proxy_pool
+      - PROXY_POOL_CONFIG_FILE=/etc/conf.yaml
+      - MYSQL_HOST=****
+      - MYSQL_PORT=3306
+      - MYSQL_USERNAME=****
+      - MYSQL_PASSWORD=****
+      - MYSQL_DATABASE=proxy_pool
     command: api
 
   proxy-pool-schduler:
@@ -39,12 +39,12 @@ services:
     restart: always
     environment:
       - TZ=Asia/Shanghai
-      - CONFIG_FILE=/etc/conf.yaml
-      - HOST=****
-      - PORT=3306
-      - USERNAME=****
-      - PASSWORD=****
-      - DATABASE=proxy_pool
+      - PROXY_POOL_CONFIG_FILE=/etc/conf.yaml
+      - MYSQL_HOST=****
+      - MYSQL_PORT=3306
+      - MYSQL_USERNAME=****
+      - MYSQL_PASSWORD=****
+      - MYSQL_DATABASE=proxy_pool
     command: scheduler
 ```
 
