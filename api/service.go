@@ -16,7 +16,7 @@ type Service struct {
 	conf *config.Config
 }
 
-// New new service
+// NewService service
 func NewService(db *databases.DB, conf *config.Config) *Service {
 	return &Service{
 		db:   db,

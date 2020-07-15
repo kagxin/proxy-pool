@@ -1,0 +1,22 @@
+version: "3"
+
+services:
+  proxy-pool-api:
+    build: .
+    container_name: proxy-pool-api
+    restart: always
+    ports:
+      - 9001:8080
+    environment:
+      - TZ=Asia/Shanghai
+      - CONF=/etc/
+    command: api
+
+  proxy-pool-schduler:
+    build: .
+    container_name: proxy-pool-scheduler
+    restart: always
+    environment:
+      - TZ=Asia/Shanghai
+      - CONF=/etc/
+    command: scheduler
