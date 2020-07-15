@@ -11,5 +11,5 @@ func main() {
 	db := databases.New(conf.Mysql)
 	srv := api.NewService(db, conf)
 	router := api.InitRouter(srv)
-	router.Run()
+	router.Run(conf.HTTP.Port)
 }

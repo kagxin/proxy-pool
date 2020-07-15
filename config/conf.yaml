@@ -1,11 +1,14 @@
-prod:
-  Mysql:
-    Port: 3306
-    Host: localhost
-    Username: root
-    Password: root
-    Database: proxy_pool
+HTTP:
+  Port: :9001
 
-  VerifyURL:
-    HTTP: http://httpbin.org/get
-    HTTPS: https://httpbin.org/get
+VerifyURL:
+  HTTP: http://httpbin.org/get
+  HTTPS: https://httpbin.org/get
+
+CheckProxy:
+  GoroutineNumber: 30
+  TimeOut: 10
+  CheckAllInterval: 60
+
+FetchProxy:
+  FetchProxyInterval: 180

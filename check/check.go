@@ -28,9 +28,8 @@ func NewChecker(db *databases.DB, conf *config.Config) *Checker {
 // CheckAll 检查所有IP的可用性
 func (c *Checker) CheckAll() {
 	log.Infof("check all ip avaliable start...")
-	// TODO: to config file
 	var wg sync.WaitGroup
-	ch := make(chan struct{}, 10) // 并发数量10控制
+	ch := make(chan struct{}, c.Conf.CheckProxy.GoroutineNumber)
 
 	proxys := make([]*model.Proxy, 64)
 	if err := c.DB.Mysql.Where("is_deleted=?", 0).Find(&proxys).Error; err != nil {

@@ -33,8 +33,7 @@ func NewFetcher(db *databases.DB, conf *config.Config, check *check.Checker) *Fe
 
 // FetchAllAndCheck 拉取所有的代理并检查可用性之后入库
 func (f *Fetcher) FetchAllAndCheck() {
-	// TODO: 并发数config file
-	var ch = make(chan struct{}, 10)
+	var ch = make(chan struct{}, f.conf.CheckProxy.GoroutineNumber)
 	var wg sync.WaitGroup
 	var allProxys []*model.Proxy
 	var proxySites = []func() ([]*model.Proxy, error){GetIPKu, GetIPYunDaiLi, GetQuanWang, GetXiChi}

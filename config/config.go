@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"log"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/spf13/viper"
@@ -10,8 +9,28 @@ import (
 
 // Config 配置结构体
 type Config struct {
-	Mysql     *MysqlConfig
-	VerifyURL *VerifyURL
+	Mysql      *MysqlConfig
+	VerifyURL  *VerifyURL
+	CheckProxy *CheckProxy
+	FetchProxy *FetchProxy
+	HTTP       *HTTP
+}
+
+// HTTP http的配置
+type HTTP struct {
+	Port string
+}
+
+// CheckProxy 检查代理可用性的配置
+type CheckProxy struct {
+	GoroutineNumber  uint64
+	TimeOut          uint64
+	CheckAllInterval uint64
+}
+
+// FetchProxy 拉取代理的配置
+type FetchProxy struct {
+	FetchProxyInterval uint64
 }
 
 // VerifyURL 校验proxy可用性的地址
@@ -32,21 +51,25 @@ type MysqlConfig struct {
 // New 创建一个config
 func New() *Config {
 	var config = &Config{}
-	viper.SetConfigName("conf") // 读取yaml配置文件
+	var mysql = &MysqlConfig{}
 	viper.AutomaticEnv()
-	confPath := viper.Get("CONF")
-	path, ok := confPath.(string)
-	if !ok {
-		panic(fmt.Sprintf("未找到配置文件:%#v", path))
-	}
-	viper.AddConfigPath(path)   //设置配置文件的搜索目录
+	mysql.Host = viper.GetString("HOST")
+	mysql.Port = viper.GetInt("PORT")
+	mysql.Username = viper.GetString("USERNAME")
+	mysql.Password = viper.GetString("PASSWORD")
+	mysql.Database = viper.GetString("DATABASE")
+	config.Mysql = mysql
+
+	confPath := viper.GetString("CONFIG_FILE")
+	viper.SetConfigFile(confPath) // 读取yaml配置文件
+	viper.SetConfigType("yaml")
 	err := viper.ReadInConfig() // 根据以上配置读取加载配置文件
 	if err != nil {
-		log.Fatal(err) // 读取配置文件失败致命错误
+		panic(fmt.Errorf("读取配置文件失败path:%s, err:%#v", confPath, err)) // 读取配置文件失败致命错误
 	}
-	err = viper.UnmarshalKey("prod", config)
+	err = viper.Unmarshal(config)
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("解析配置文件失败path:%s, err:%#v", confPath, err))
 	}
 	return config
 }

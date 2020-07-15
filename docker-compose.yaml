@@ -6,10 +6,15 @@ services:
     container_name: proxy-pool-api
     restart: always
     ports:
-      - 9001:8080
+      - 9001:9001
     environment:
       - TZ=Asia/Shanghai
-      - CONF=/etc/
+      - CONFIG_FILE=/etc/conf.yaml
+      - HOST=****
+      - PORT=3306
+      - USERNAME=****
+      - PASSWORD=****
+      - DATABASE=proxy_pool
     command: api
 
   proxy-pool-schduler:
@@ -18,5 +23,10 @@ services:
     restart: always
     environment:
       - TZ=Asia/Shanghai
-      - CONF=/etc/
+      - CONFIG_FILE=/etc/conf.yaml
+      - HOST=****
+      - PORT=3306
+      - USERNAME=****
+      - PASSWORD=****
+      - DATABASE=proxy_pool
     command: scheduler
