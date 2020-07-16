@@ -54,3 +54,7 @@ services:
 
 ### TODO
 - [ ] 增加更多免费代理网址
+- [ ] 返回一个代理是随机
+- [ ] 代理使用http和https的区别
+- [ ] request请求 io.reader 优化
+- [ ] log 模块替换

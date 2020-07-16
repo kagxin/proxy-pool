@@ -14,7 +14,6 @@ var db *databases.DB
 var checker *Checker
 
 func TestMain(m *testing.M) {
-	os.Setenv("CONF", "/Users/kangxin/Program/github/proxy-pool/config/")
 	conf = config.New()
 	db = databases.New(conf.Mysql)
 	checker = NewChecker(db, conf)
