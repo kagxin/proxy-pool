@@ -34,8 +34,8 @@ jobs:
       run: go env -w GO111MODULE=on 
             && go env -w GOPROXY=https://goproxy.cn,direct 
             && go env -w GOSUMDB=off
-            && go mod tidy && CGO_ENABLED=0 GOOS=linux go build -o main /build/cmd/api/main.go 
-            &&CGO_ENABLED=0 GOOS=linux go build -o scheduler /build/cmd/scheduler/main.go
+            && go mod tidy && CGO_ENABLED=0 GOOS=linux go build -o main cmd/api/main.go 
+            &&CGO_ENABLED=0 GOOS=linux go build -o scheduler cmd/scheduler/main.go
 
 #     - name: Test
 #       run: go test -v .
