@@ -2,7 +2,6 @@ package fetch
 
 import (
 	"fmt"
-	"os"
 	"proxy-pool/check"
 	"proxy-pool/config"
 	"proxy-pool/databases"
@@ -40,7 +39,6 @@ func Test_GetIPKu(t *testing.T) {
 }
 
 func Test_FetchAllAndCheck(t *testing.T) {
-	os.Setenv("CONF", "/Users/kangxin/Program/github/proxy-pool/config/")
 	conf := config.New()
 	db := databases.New(conf.Mysql)
 	checker := check.NewChecker(db, conf)
