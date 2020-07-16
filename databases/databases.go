@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"proxy-pool/config"
+	"proxy-pool/model"
 
 	"github.com/jinzhu/gorm"
 )
@@ -27,6 +28,10 @@ func New(mysql *config.MysqlConfig) *DB {
 	db.LogMode(true)
 	if err != nil {
 		log.Fatalf("mysql connect error %v", err)
+	}
+	// 创建表结构
+	if err := db.AutoMigrate(&model.Proxy{}).Error; err != nil {
+		log.Fatalf("mysql create table err:%#v", err)
 	}
 
 	return &DB{Mysql: db}

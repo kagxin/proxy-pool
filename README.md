@@ -18,13 +18,12 @@ version: "3"
 
 services:
   proxy-pool-api:
-    image: registry.cn-shanghai.aliyuncs.com/release-lib/proxy-pool:latest
+    build: .
     container_name: proxy-pool-api
     restart: always
     ports:
       - 9001:9001
     environment:
-      - TZ=Asia/Shanghai
       - PROXY_POOL_CONFIG_FILE=/etc/conf.yaml
       - MYSQL_HOST=****
       - MYSQL_PORT=3306
@@ -34,11 +33,10 @@ services:
     command: api
 
   proxy-pool-schduler:
-    image: registry.cn-shanghai.aliyuncs.com/release-lib/proxy-pool:latest
+    build: .
     container_name: proxy-pool-scheduler
     restart: always
     environment:
-      - TZ=Asia/Shanghai
       - PROXY_POOL_CONFIG_FILE=/etc/conf.yaml
       - MYSQL_HOST=****
       - MYSQL_PORT=3306
@@ -56,3 +54,5 @@ services:
 - [ ] 增加更多免费代理网址
 - [x] `proxy/get` 接口随机返回可用代理
 - [ ] log 模块替换
+- [ ] 添加 readthedocs
+- [ ] travis-ci

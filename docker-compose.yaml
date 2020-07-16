@@ -8,7 +8,6 @@ services:
     ports:
       - 9001:9001
     environment:
-      - TZ=Asia/Shanghai
       - PROXY_POOL_CONFIG_FILE=/etc/conf.yaml
       - MYSQL_HOST=****
       - MYSQL_PORT=3306
@@ -22,7 +21,6 @@ services:
     container_name: proxy-pool-scheduler
     restart: always
     environment:
-      - TZ=Asia/Shanghai
       - PROXY_POOL_CONFIG_FILE=/etc/conf.yaml
       - MYSQL_HOST=****
       - MYSQL_PORT=3306

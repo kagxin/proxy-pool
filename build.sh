@@ -14,4 +14,6 @@ docker build -f Dockerfile -t ${IMAGE_FULL_NAME} .
 echo "Push ..."
 docker login --username=kangxinhappy2016 registry.cn-shanghai.aliyuncs.com
 docker push ${IMAGE_FULL_NAME}
+echo "Clean .."
+docker image prune -f
 echo "Done"
