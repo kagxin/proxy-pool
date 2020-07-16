@@ -2,8 +2,8 @@
 爬虫代理池
 
 ### 体验地址
-* [get](http://81.68.131.249:9001/proxy/get)
-* [getall](http://81.68.131.249:9001/proxy/getall)
+* 获取一个proxy [get](http://81.68.131.249:9001/proxy/get)
+* 获取所有可用proxy [getall](http://81.68.131.249:9001/proxy/getall)
 
 
 ### 新建数据库
@@ -54,7 +54,5 @@ services:
 
 ### TODO
 - [ ] 增加更多免费代理网址
-- [ ] 返回一个代理是随机
-- [ ] 代理使用http和https的区别
-- [ ] request请求 io.reader 优化
+- [x] `proxy/get` 接口随机返回可用代理
 - [ ] log 模块替换

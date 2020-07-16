@@ -31,7 +31,7 @@ type (
 		IP        string    `gorm:"column:ip" json:"ip"`
 		Port      int       `gorm:"column:port" json:"port"`
 		Schema    string    `gorm:"column:schema" json:"schema"`
-		CheckTime time.Time `gorm:"column:check_time" json:"check_time"`
+		CheckTime time.Time `gorm:"column:check_time" json:"last_check_time"`
 	}
 )
 
@@ -47,8 +47,12 @@ func (p *ProxyRsp) CopyFromProxy(proxy *model.Proxy) {
 // GetOneProxy 获取一个代理
 func (s *Service) GetOneProxy(c context.Context) (*ProxyRsp, error) {
 	rsp := &ProxyRsp{}
-	if err := s.db.Mysql.Table("proxy").Select([]string{"id", "ip", "`port`", "`schema`", "check_time"}).
-		Where("is_deleted=?", 0).First(rsp).Error; err != nil {
+	if err := s.db.Mysql.Raw(`SELECT r1.id, r1.schema, r1.ip, r1.port,
+		r1.check_time FROM proxy AS r1
+		JOIN (SELECT CEIL(RAND() * (SELECT MAX(id) FROM proxy)) AS id) AS r2
+			WHERE r1.id >= r2.id and r1.is_deleted=0
+			ORDER BY r1.id ASC LIMIT 1`).
+		Row().Scan(&rsp.ID, &rsp.Schema, &rsp.IP, &rsp.Port, &rsp.CheckTime); err != nil {
 		return nil, NoFound
 	}
 	return rsp, nil

@@ -15,11 +15,7 @@ import (
 // CheckProxyAvailable 校验IP的可用性
 func (c *Checker) CheckProxyAvailable(proxy *model.Proxy) (bool, error) {
 	var testURL string
-	if proxy.Schema == model.ProxyTypeHTTP {
-		testURL = c.Conf.VerifyURL.HTTP
-	} else {
-		testURL = c.Conf.VerifyURL.HTTPS
-	}
+	testURL = c.Conf.VerifyURL.HTTPS
 	proxyURL, err := url.Parse(fmt.Sprintf("%s://%s:%d", proxy.Schema, proxy.IP, proxy.Port))
 	if err != nil {
 		log.Errorf("url.Parse error:%#v", err)
