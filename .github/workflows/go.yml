@@ -30,11 +30,12 @@ jobs:
             dep ensure
         fi
 
-    - name: Build api
-      run: go build cmd/api/main.go
-
-    - name: Build schduler
-      run: go build cmd/schduler/main.go
+    - name: Build
+      run: go env -w GO111MODULE=on 
+            && go env -w GOPROXY=https://goproxy.cn,direct 
+            && go env -w GOSUMDB=off
+            && go mod tidy && CGO_ENABLED=0 GOOS=linux go build -o main /build/cmd/api/main.go 
+            &&CGO_ENABLED=0 GOOS=linux go build -o scheduler /build/cmd/scheduler/main.go
 
 #     - name: Test
 #       run: go test -v .
