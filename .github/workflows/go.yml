@@ -34,11 +34,11 @@ jobs:
       - name: test
         run: go test ./...
         env: 
-          - MYSQL_HOST=mysql
-            MYSQL_PORT=3306
-            MYSQL_USERNAME=root
-            MYSQL_PASSWORD=root
-            MYSQL_DATABASE=proxy_pool
+          MYSQL_HOST=mysql
+          MYSQL_PORT=3306
+          MYSQL_USERNAME=root
+          MYSQL_PASSWORD=root
+          MYSQL_DATABASE=proxy_pool
 
   build_image:
     name: Test
