@@ -49,4 +49,4 @@ jobs:
           username: ${{ secrets.DOCKER_PUSH_USERNAME }}
           password: ${{ secrets.DOCKER_PUSH_PWD }}
           registry: registry.cn-shanghai.aliyuncs.com
-          dockerfile: Dockerfile.CI
+          dockerfile: Dockerfile
