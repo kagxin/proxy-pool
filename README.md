@@ -12,13 +12,8 @@
 * 获取所有可用proxy [getall](http://81.68.131.249:9001/proxy/getall)
 
 
-### 新建数据库
-* 使用mysql数据库
-* 新建数据库 `CREATE DATABASE proxy_pool CHARACTER SET utf8mb4`
-* 使用 schema.sql 创建表结构
-
-
 ### docker-compose 启动服务
+下载项目的docker-compose文件
 ```bash
 docker-compose up -d
 ```
