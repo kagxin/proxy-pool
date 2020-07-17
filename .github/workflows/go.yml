@@ -7,7 +7,6 @@ on:
     branches: [ master ]
 
 jobs:
-
   build_test:
     name: Run Test
     runs-on: ubuntu-latest
