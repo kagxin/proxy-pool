@@ -9,7 +9,7 @@ on:
 jobs:
 
   build_test:
-    name: Test
+    name: Run Test
     runs-on: ubuntu-latest
     services:
       mysql:
@@ -41,7 +41,7 @@ jobs:
           MYSQL_DATABASE: proxy_pool
 
   build_image:
-    name: Test
+    name: Build Image
     runs-on: ubuntu-latest
     steps:
       - name: Publish to Registry
