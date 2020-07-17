@@ -27,7 +27,7 @@ jobs:
       - name: Get dependencies
         run: go env -w GO111MODULE=on && go mod tidy
 
-      - name: test
+      - name: Go Test
         run: go test ./... &&
               CGO_ENABLED=0 GOOS=linux go build -o main cmd/api/main.go &&
               CGO_ENABLED=0 GOOS=linux go build -o scheduler cmd/scheduler/main.go
