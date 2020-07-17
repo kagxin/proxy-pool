@@ -14,9 +14,9 @@ jobs:
     services:
       mysql:
         image: mysql
-      env:
-        MYSQL_ROOT_PASSWORD: root
-        MYSQL_DATABASE: proxy_pool
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: proxy_pool
 
     steps:
       - name: Set up Go 1.x
