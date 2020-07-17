@@ -33,15 +33,15 @@ jobs:
 
 #     - name: Test
 #       run: go test -v .
-    build_image:
-      name: Build Image
-      runs-on: ubuntu-latest
-      steps:
-        - name: Publish to Registry
-          uses: elgohr/Publish-Docker-Github-Action@master
-          with:
-            name: release-lib/proxy-pool
-            username: ${{ secrets.DOCKER_PUSH_USERNAME }}
-            password: ${{ secrets.DOCKER_PUSH_PWD }}
-            registry: registry.cn-shanghai.aliyuncs.com
-            dockerfile: Dockerfile
+  build_image:
+    name: Build Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish to Registry
+        uses: elgohr/Publish-Docker-Github-Action@master
+        with:
+          name: release-lib/proxy-pool
+          username: ${{ secrets.DOCKER_PUSH_USERNAME }}
+          password: ${{ secrets.DOCKER_PUSH_PWD }}
+          registry: registry.cn-shanghai.aliyuncs.com
+          dockerfile: Dockerfile
