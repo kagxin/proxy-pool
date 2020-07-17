@@ -8,37 +8,47 @@ on:
 
 jobs:
 
-  build:
-    name: Build
+  build_test:
+    name: Test
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql
+      env:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_DATABASE: proxy_pool
+
+    steps:
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v2
+        with:
+          go-version: ^1.14
+        id: go
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+
+      - name: Get dependencies
+        run: go env -w GO111MODULE=on && go mod tidy 
+
+      - name: test
+        run: go test ./...
+        env: 
+          - MYSQL_HOST=mysql
+            MYSQL_PORT=3306
+            MYSQL_USERNAME=root
+            MYSQL_PASSWORD=root
+            MYSQL_DATABASE=proxy_pool
+
+  build_image:
+    name: Test
     runs-on: ubuntu-latest
     steps:
-
-    - name: Set up Go 1.x
-      uses: actions/setup-go@v2
-      with:
-        go-version: ^1.14
-      id: go
-
-    - name: Check out code into the Go module directory
-      uses: actions/checkout@v2
-
-    - name: Get dependencies
-      run: go get -v -t -d ./...
-
-    - name: Build
-      run: go env -w GO111MODULE=on 
-            && go mod tidy 
-            && CGO_ENABLED=0 GOOS=linux go build -o main cmd/api/main.go 
-            &&CGO_ENABLED=0 GOOS=linux go build -o scheduler cmd/scheduler/main.go
-
-#     - name: Test
-#       run: go test -v .
-    
-    - name: Publish to Registry
-      uses: elgohr/Publish-Docker-Github-Action@master
-      with:
-        name: release-lib/proxy-pool
-        username: ${{ secrets.DOCKER_PUSH_USERNAME }}
-        password: ${{ secrets.DOCKER_PUSH_PWD }}
-        registry: registry.cn-shanghai.aliyuncs.com
-        dockerfile: Dockerfile
+      - name: Publish to Registry
+        uses: elgohr/Publish-Docker-Github-Action@master
+        with:
+          name: release-lib/proxy-pool
+          username: ${{ secrets.DOCKER_PUSH_USERNAME }}
+          password: ${{ secrets.DOCKER_PUSH_PWD }}
+          registry: registry.cn-shanghai.aliyuncs.com
+          dockerfile: Dockerfile.CI
