@@ -33,7 +33,8 @@ jobs:
 
       - name: test
         run: go test ./...
-        env: 
+        env:
+          PROXY_POOL_CONFIG_FILE: config/conf.yaml
           MYSQL_HOST: mysql
           MYSQL_PORT: 3306
           MYSQL_USERNAME: root
