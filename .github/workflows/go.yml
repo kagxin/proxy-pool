@@ -17,6 +17,8 @@ jobs:
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: proxy_pool
+        ports:
+          - 3306:3306
 
     steps:
       - name: Set up Go 1.x
