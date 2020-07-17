@@ -33,7 +33,7 @@ jobs:
 
 #     - name: Test
 #       run: go test -v .
-    build:
+    build_image:
       name: Build Image
       runs-on: ubuntu-latest
       steps:
