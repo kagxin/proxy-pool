@@ -23,18 +23,12 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Get dependencies
-      run: |
-        go get -v -t -d ./...
-        if [ -f Gopkg.toml ]; then
-            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-            dep ensure
-        fi
+      run: go get -v -t -d ./...
 
     - name: Build
       run: go env -w GO111MODULE=on 
-            && go env -w GOPROXY=https://goproxy.cn,direct 
-            && go env -w GOSUMDB=off
-            && go mod tidy && CGO_ENABLED=0 GOOS=linux go build -o main cmd/api/main.go 
+            && go mod tidy 
+            && CGO_ENABLED=0 GOOS=linux go build -o main cmd/api/main.go 
             &&CGO_ENABLED=0 GOOS=linux go build -o scheduler cmd/scheduler/main.go
 
 #     - name: Test
