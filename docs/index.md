@@ -1,5 +1,5 @@
 # proxy-pool
-搭建自己的IP代理池
+搭建自己的免费IP代理池
 
 ### 体验地址
 * 获取一个proxy [get](http://81.68.131.249:9001/proxy/get)
