@@ -1,6 +1,6 @@
 # proxy-pool
 
-[![Actions Status](https://github.com/kagxin/proxy-pool/workflows/Go/badge.svg)](https://github.com/kagxin/proxy-pool/actions)
+[![Actions Status](https://github.com/kagxin/proxy-pool/workflows/Build/badge.svg)](https://github.com/kagxin/proxy-pool/actions)
 [![Language](https://img.shields.io/badge/language-gloang-blue.svg)](https://golang.org/)
 [![LICENSE](https://img.shields.io/badge/license-MIT-000000.svg)](https://github.com/kagxin/proxy-pool/blob/master/LICENSE)
 
