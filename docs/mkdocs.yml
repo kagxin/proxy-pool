@@ -1,0 +1,6 @@
+site_name: proxy-pool
+nav:
+    - Home: index.md
+    - About: about.md
+
+theme: readthedocs
