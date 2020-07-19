@@ -3,6 +3,7 @@
 [![Actions Status](https://github.com/kagxin/proxy-pool/workflows/Build/badge.svg)](https://github.com/kagxin/proxy-pool/actions)
 [![Language](https://img.shields.io/badge/language-gloang-blue.svg)](https://golang.org/)
 [![LICENSE](https://img.shields.io/badge/license-MIT-000000.svg)](https://github.com/kagxin/proxy-pool/blob/master/LICENSE)
+[![readTheDoc](https://readthedocs.org/projects/golang-proxy-pool/badge/?version=latest)](https://golang-proxy-pool.readthedocs.io)
 
 
 爬虫代理池
