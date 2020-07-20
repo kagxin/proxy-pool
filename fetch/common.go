@@ -1,7 +1,7 @@
 package fetch
 
 import (
-	"bytes"
+	"io/ioutil"
 	"net/http"
 	"proxy-pool/model"
 	"time"
@@ -11,8 +11,6 @@ import (
 
 // DoRequest 抓取页面
 func DoRequest(url string, timeout time.Duration) (int, []byte, error) {
-	// TODO: http req
-	buf := bytes.NewBuffer(make([]byte, 0, 512))
 	client := &http.Client{
 		Timeout: timeout,
 	}
@@ -30,10 +28,10 @@ func DoRequest(url string, timeout time.Duration) (int, []byte, error) {
 	}
 	defer res.Body.Close()
 
-	_, err = buf.ReadFrom(res.Body)
+	bodyBuf, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		log.Errorf("res.Body.Read %s, error:%#v", url, err)
+		log.Errorf("ioutil.ReadAll url:%s, err: %s", url, err)
 		return 0, nil, err
 	}
-	return res.StatusCode, buf.Bytes(), nil
+	return res.StatusCode, bodyBuf, nil
 }
