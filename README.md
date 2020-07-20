@@ -24,7 +24,7 @@ docker-compose up -d
 * 获取所有可用proxy `http://localhost:9001/proxy/getall`
 
 ### TODO
-- [ ] 增加更多免费代理网址
+- [ ] 增加更多免费代理源
 - [x] `proxy/get` 接口随机返回可用代理
 - [x] log 模块替换
 - [x] 添加 readthedocs
