@@ -1,12 +1,12 @@
 package fetch
 
 import (
+	"bytes"
 	"proxy-pool/check"
 	"proxy-pool/config"
 	"proxy-pool/databases"
 	"proxy-pool/model"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 
@@ -92,7 +92,7 @@ func GetQuanWang() ([]*model.Proxy, error) {
 		log.Errorf("GetQuanWang DoRequest error:%#v", err)
 		return nil, err
 	}
-	doc, err := htmlquery.Parse(strings.NewReader(string(buf)))
+	doc, err := htmlquery.Parse(bytes.NewReader(buf))
 	if err != nil {
 		log.Errorf("goquery.NewDocument error:%#v", err)
 		return nil, err
@@ -132,7 +132,7 @@ func GetXiChi() ([]*model.Proxy, error) {
 		log.Errorf("XiChiFetchURL DoRequest error:%#v", err)
 		return nil, err
 	}
-	doc, err := htmlquery.Parse(strings.NewReader(string(buf)))
+	doc, err := htmlquery.Parse(bytes.NewReader(buf))
 	if err != nil {
 		log.Errorf("goquery.NewDocument error:%#v", err)
 		return nil, err
@@ -164,7 +164,7 @@ func GetIPYunDaiLi() ([]*model.Proxy, error) {
 		log.Errorf("IPSeaURL DoRequest error:%#v", err)
 		return nil, err
 	}
-	doc, err := htmlquery.Parse(strings.NewReader(string(buf)))
+	doc, err := htmlquery.Parse(bytes.NewReader(buf))
 	if err != nil {
 		log.Errorf("goquery.NewDocument error:%#v", err)
 		return nil, err
@@ -196,7 +196,7 @@ func GetIPKu() ([]*model.Proxy, error) {
 		log.Errorf("IPKuURL DoRequest error:%#v", err)
 		return nil, err
 	}
-	doc, err := htmlquery.Parse(strings.NewReader(string(buf)))
+	doc, err := htmlquery.Parse(bytes.NewReader(buf))
 	if err != nil {
 		log.Errorf("goquery.NewDocument error:%#v", err)
 		return nil, err
