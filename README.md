@@ -27,5 +27,5 @@ docker-compose up -d
 - [ ] 增加更多免费代理网址
 - [x] `proxy/get` 接口随机返回可用代理
 - [ ] log 模块替换
-- [ ] 添加 readthedocs
+- [x] 添加 readthedocs
 - [x] github actions workflow (CI)
