@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"github.com/antchfx/htmlquery"
-	"github.com/google/martian/log"
 	"github.com/jinzhu/gorm"
+	log "github.com/sirupsen/logrus"
 )
 
 // Fetcher 拉取数据
