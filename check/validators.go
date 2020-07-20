@@ -9,7 +9,7 @@ import (
 	"proxy-pool/model"
 	"time"
 
-	"github.com/google/martian/log"
+	log "github.com/sirupsen/logrus"
 )
 
 // CheckProxyAvailable 校验IP的可用性

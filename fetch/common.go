@@ -6,7 +6,7 @@ import (
 	"proxy-pool/model"
 	"time"
 
-	"github.com/google/martian/log"
+	log "github.com/sirupsen/logrus"
 )
 
 // DoRequest 抓取页面

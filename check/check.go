@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/google/martian/log"
+	log "github.com/sirupsen/logrus"
 )
 
 // Checker 检查IP可用性
