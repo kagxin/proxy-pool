@@ -5,23 +5,27 @@
 [![LICENSE](https://img.shields.io/badge/license-MIT-000000.svg)](https://github.com/kagxin/proxy-pool/blob/master/LICENSE)
 [![readTheDoc](https://readthedocs.org/projects/golang-proxy-pool/badge/?version=latest)](https://golang-proxy-pool.readthedocs.io)
 
-
-爬虫代理池
+搭建自己的代理池，详细[文档地址](https://golang-proxy-pool.readthedocs.io/)
 
 ### 体验地址
 * 获取一个proxy [get](http://81.68.131.249:9001/proxy/get)
 * 获取所有可用proxy [getall](http://81.68.131.249:9001/proxy/getall)
 
+### 接口描述
 
-### docker-compose 启动服务
-下载项目的docker-compose文件
+|接口|方法|描述|参数|
+|-|-|-|-|
+|`/get`|GET|随机获取一个可用代理||
+|`/getall`|GET|获取所有可用代理||
+
+### 快速开始
+* 下载项目的docker-compose文件
 ```bash
 docker-compose up -d
 ```
 
-### 等待几分钟访问 9001 端口
-* 获取一个proxy `http://localhost:9001/proxy/get`
-* 获取所有可用proxy `http://localhost:9001/proxy/getall`
+* 等待几分钟访问9001端口
+获取一个proxy `http://localhost:9001/proxy/get`
 
 ### TODO
 - [ ] 增加更多免费代理源
@@ -29,3 +33,4 @@ docker-compose up -d
 - [x] log 模块替换
 - [x] 添加 readthedocs
 - [x] github actions workflow (CI)
+- [ ] 添加gorm支持的其他数据库
