@@ -1,5 +1,6 @@
 site_name: Proxy-Pool
 nav:
-    - Home: index.md
+    - 快速开始: index.md
+    - 代码结构: software.md
     - About: about.md
 theme: readthedocs

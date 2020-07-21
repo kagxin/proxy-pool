@@ -1,6 +1,6 @@
 # proxy-pool
 
-搭建自己的代理池，可以用爬虫等场景
+搭建自己的代理池，可以用于爬虫等场景
 
 ### 体验地址
 * 获取一个proxy [/proxy/get](http://81.68.131.249:9001/proxy/get)
@@ -41,10 +41,46 @@ docker-compose up -d
 * 等待几分钟访问9001端口
 获取一个proxy `http://localhost:9001/proxy/get`
 
-### TODO
-- [ ] 增加更多免费代理源
-- [x] `proxy/get` 接口随机返回可用代理
-- [x] log 模块替换
-- [x] 添加 readthedocs
-- [x] github actions workflow (CI)
-- [ ] 添加gorm支持的其他数据库
+### 使用已有的数据库
+> 默认的docker-compose中起了一个mysql做为数据存储的数据库。也可以使用自己已有的数据
+
+* 新建数据库`proxy_pool` `CREATE DATABASE proxy_pool CHARACTER SET utf8mb4`
+* 修改docker-compose.yaml
+```yaml
+version: "3"
+
+services:
+  proxy-pool-api:
+    image: registry.cn-shanghai.aliyuncs.com/release-lib/proxy-pool:latest
+    container_name: proxy-pool-api
+    restart: always
+    ports:
+      - 9001:9001
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - PROXY_POOL_CONFIG_FILE=/etc/conf.yaml
+      - MYSQL_HOST=your-host
+      - MYSQL_PORT=your-port
+      - MYSQL_USERNAME=your-username
+      - MYSQL_PASSWORD=your-password
+      - MYSQL_DATABASE=proxy_pool
+    command: api
+
+  proxy-pool-schduler:
+    image: registry.cn-shanghai.aliyuncs.com/release-lib/proxy-pool:latest
+    container_name: proxy-pool-scheduler
+    restart: always
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - PROXY_POOL_CONFIG_FILE=/etc/conf.yaml
+      - MYSQL_HOST=your-host
+      - MYSQL_PORT=your-port
+      - MYSQL_USERNAME=your-username
+      - MYSQL_PASSWORD=your-password
+      - MYSQL_DATABASE=proxy_pool
+    command: scheduler
+```
