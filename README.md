@@ -5,7 +5,7 @@
 [![LICENSE](https://img.shields.io/badge/license-MIT-000000.svg)](https://github.com/kagxin/proxy-pool/blob/master/LICENSE)
 [![readTheDoc](https://readthedocs.org/projects/golang-proxy-pool/badge/?version=latest)](https://golang-proxy-pool.readthedocs.io)
 
-搭建自己的代理池，详细[文档地址](https://golang-proxy-pool.readthedocs.io/)
+搭建自己的免费代理池，详细[文档地址](https://golang-proxy-pool.readthedocs.io/)
 
 ### 体验地址
 * 获取一个proxy [get](http://81.68.131.249:9001/proxy/get)
