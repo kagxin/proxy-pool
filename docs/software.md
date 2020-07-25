@@ -1,7 +1,7 @@
 # 关于代码结构
 ### 设计
-代理池的分为3部分
-
+代理池的代码主体分为3部分
+![image](./proxy_pool.png)
 #### API 服务
 http 接口服务对应main文件  `cmd/api/main.go`，使用`gin`框架做接口服务。
 
