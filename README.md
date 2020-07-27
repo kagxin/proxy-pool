@@ -33,4 +33,3 @@ docker-compose up -d
 - [x] log 模块替换
 - [x] 添加 readthedocs
 - [x] github actions workflow (CI)
-- [ ] 添加gorm支持的其他数据库
