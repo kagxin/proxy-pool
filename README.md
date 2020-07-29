@@ -27,6 +27,16 @@ docker-compose up -d
 * 等待几分钟访问9001端口
 获取一个proxy `http://localhost:9001/proxy/get`
 
+### 已添加代理源
+|代理源|地址|
+|-|-|
+|全网代理|[地址](http://www.goubanjia.com/)|
+|西刺|[地址](https://www.kuaidaili.com/free)|
+|IP海|[地址](http://www.ip3366.net/)|
+|IP库|[地址](https://ip.jiangxianli.com/)|
+
+> 其他免费代理源欢迎issue提出
+
 ### TODO
 - [ ] 增加更多免费代理源
 - [x] `proxy/get` 接口随机返回可用代理

@@ -12,3 +12,4 @@ CheckProxy:
 
 FetchProxy:
   FetchProxyInterval: 180
+  GoroutineNumber: 30
