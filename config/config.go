@@ -31,6 +31,7 @@ type CheckProxy struct {
 // FetchProxy 拉取代理的配置
 type FetchProxy struct {
 	FetchProxyInterval uint64
+	GoroutineNumber    uint64
 }
 
 // VerifyURL 校验proxy可用性的地址

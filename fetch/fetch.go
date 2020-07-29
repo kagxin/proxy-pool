@@ -33,16 +33,22 @@ func NewFetcher(db *databases.DB, conf *config.Config, check *check.Checker) *Fe
 
 // FetchAllAndCheck 拉取所有的代理并检查可用性之后入库
 func (f *Fetcher) FetchAllAndCheck() {
-	var ch = make(chan struct{}, f.conf.CheckProxy.GoroutineNumber)
+	var ch = make(chan struct{}, f.conf.FetchProxy.GoroutineNumber)
 	var wg sync.WaitGroup
 	var allProxys []*model.Proxy
-	var proxySites = []func() ([]*model.Proxy, error){GetIPKu, GetIPYunDaiLi, GetQuanWang, GetXiChi}
+	var proxySites = []func() ([]*model.Proxy, error){
+		GetIPKu,
+		func() ([]*model.Proxy, error) { return GetIPYunDaiLi(model.YunDaiLiURL) },
+		func() ([]*model.Proxy, error) { return GetIPYunDaiLi(model.YunDaiLiURL2) },
+		GetQuanWang,
+		GetXiChi,
+	}
 	for _, GetFunc := range proxySites {
 		proxys, err := GetFunc()
 		if err == nil {
 			allProxys = append(allProxys, proxys...)
 		} else {
-			log.Errorf("拉取西池失败 err:%#v", err)
+			log.Errorf("拉取代理源失败 err:%#v", err)
 		}
 	}
 
@@ -55,13 +61,11 @@ func (f *Fetcher) FetchAllAndCheck() {
 				wg.Done()
 			}()
 			ok, err := f.checker.CheckProxyAvailable(proxy)
-			if err != nil {
-				log.Errorf("check.CheckProxyAvailable proxy:%s:%d, error %#v", proxy.IP, proxy.Port, err.Error())
+			if err != nil || !ok {
+				log.Infof("Invalid proxy:%s:%d, %v", proxy.IP, proxy.Port, err)
 				return
 			}
-			if !ok {
-				return
-			}
+			log.Infof("Valid proxy:%s:%d.", proxy.IP, proxy.Port)
 			// 创建或更新 proxy
 			if err := f.db.Mysql.Table("proxy").Where("ip=?", proxy.IP).Where("port=?", proxy.Port).First(&model.Proxy{}).Error; err != nil {
 				if gorm.IsRecordNotFoundError(err) {
@@ -157,9 +161,9 @@ func GetXiChi() ([]*model.Proxy, error) {
 }
 
 // GetIPYunDaiLi 获取ip海的免费代理
-func GetIPYunDaiLi() ([]*model.Proxy, error) {
+func GetIPYunDaiLi(url string) ([]*model.Proxy, error) {
 	var proxys []*model.Proxy
-	_, buf, err := DoRequest(model.YunDaiLiURL, time.Second*5)
+	_, buf, err := DoRequest(url, time.Second*5)
 	if err != nil {
 		log.Errorf("IPSeaURL DoRequest error:%#v", err)
 		return nil, err

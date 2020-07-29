@@ -31,7 +31,7 @@ func Test_GetXiChi(t *testing.T) {
 }
 
 func Test_GetIPYunDaiLi(t *testing.T) {
-	GetIPYunDaiLi()
+	GetIPYunDaiLi(model.YunDaiLiURL2)
 }
 
 func Test_GetIPKu(t *testing.T) {

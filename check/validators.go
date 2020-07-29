@@ -35,7 +35,7 @@ func (c *Checker) CheckProxyAvailable(proxy *model.Proxy) (bool, error) {
 
 	res, err := client.Do(request)
 	if err != nil {
-		log.Infof("client.Do %s, error:%#v", proxy.IP, err.Error())
+		// log.Infof("client.Do %s, error:%#v", proxy.IP, err.Error())
 		return false, err
 	}
 	defer res.Body.Close()
@@ -53,7 +53,7 @@ func (c *Checker) CheckProxyAvailable(proxy *model.Proxy) (bool, error) {
 	var rsp model.HTTPBinRsp
 	err = json.Unmarshal(buf.Bytes(), &rsp)
 	if err != nil {
-		return false, nil
+		return false, err
 	}
 
 	return true, nil

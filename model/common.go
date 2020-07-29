@@ -1,15 +1,15 @@
 package model
 
 var (
-	// CheckSiteURL 检查代理可用性
-	CheckSiteURL = "http://www.baidu.com"
-
 	// QuanWangFetchURL 全网代理的
 	QuanWangFetchURL = "http://www.goubanjia.com/"
 	// KuaiDaiLiFetchURL 西池代理
 	KuaiDaiLiFetchURL = "https://www.kuaidaili.com/free"
-	// YunDaiLiURL IP海
+	// YunDaiLiURL IP海 高匿代理
 	YunDaiLiURL = "http://www.ip3366.net/"
+	// YunDaiLiURL2 普通代理
+	YunDaiLiURL2 = "http://www.ip3366.net/free/?stype=2"
+
 	// IPKuURL 库
 	IPKuURL = "https://ip.jiangxianli.com/"
 	// UA User-Agent
