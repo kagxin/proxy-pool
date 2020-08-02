@@ -8,8 +8,9 @@ VerifyURL:
 CheckProxy:
   GoroutineNumber: 30
   TimeOut: 10
-  CheckAllInterval: 60
+  CheckAllInterval: 120
 
 FetchProxy:
-  FetchProxyInterval: 180
+  FetchProxyInterval: 600
   GoroutineNumber: 30
+  FetchSingleProxyInterval: 5  # 拉取单个页面间隔

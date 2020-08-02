@@ -2,11 +2,13 @@ package fetch
 
 import (
 	"bytes"
+	"encoding/json"
 	"proxy-pool/check"
 	"proxy-pool/config"
 	"proxy-pool/databases"
 	"proxy-pool/model"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -37,11 +39,11 @@ func (f *Fetcher) FetchAllAndCheck() {
 	var wg sync.WaitGroup
 	var allProxys []*model.Proxy
 	var proxySites = []func() ([]*model.Proxy, error){
-		GetIPKu,
-		func() ([]*model.Proxy, error) { return GetIPYunDaiLi(model.YunDaiLiURL) },
-		func() ([]*model.Proxy, error) { return GetIPYunDaiLi(model.YunDaiLiURL2) },
-		GetQuanWang,
-		GetXiChi,
+		func() ([]*model.Proxy, error) { return f.GetIPYunDaiLi(model.YunDaiLiURL) },
+		func() ([]*model.Proxy, error) { return f.GetIPYunDaiLi(model.YunDaiLiURL2) },
+		f.GetQuanWang,
+		f.GetXiChi,
+		f.GetIPKuByAPI,
 	}
 	for _, GetFunc := range proxySites {
 		proxys, err := GetFunc()
@@ -89,7 +91,7 @@ func (f *Fetcher) FetchAllAndCheck() {
 }
 
 // GetQuanWang 获取全网代理的免费代理
-func GetQuanWang() ([]*model.Proxy, error) {
+func (f *Fetcher) GetQuanWang() ([]*model.Proxy, error) {
 	var proxys []*model.Proxy
 	_, buf, err := DoRequest(model.QuanWangFetchURL, time.Second*5)
 	if err != nil {
@@ -129,7 +131,7 @@ func GetQuanWang() ([]*model.Proxy, error) {
 }
 
 // GetXiChi 获取西刺的免费代理
-func GetXiChi() ([]*model.Proxy, error) {
+func (f *Fetcher) GetXiChi() ([]*model.Proxy, error) {
 	var proxys []*model.Proxy
 	_, buf, err := DoRequest(model.KuaiDaiLiFetchURL, time.Second*5)
 	if err != nil {
@@ -161,7 +163,7 @@ func GetXiChi() ([]*model.Proxy, error) {
 }
 
 // GetIPYunDaiLi 获取ip海的免费代理
-func GetIPYunDaiLi(url string) ([]*model.Proxy, error) {
+func (f *Fetcher) GetIPYunDaiLi(url string) ([]*model.Proxy, error) {
 	var proxys []*model.Proxy
 	_, buf, err := DoRequest(url, time.Second*5)
 	if err != nil {
@@ -192,33 +194,40 @@ func GetIPYunDaiLi(url string) ([]*model.Proxy, error) {
 	return proxys, nil
 }
 
-// GetIPKu 获取ip库
-func GetIPKu() ([]*model.Proxy, error) {
+// GetIPKuByAPI 获取ip库
+func (f *Fetcher) GetIPKuByAPI() ([]*model.Proxy, error) {
+	var APIAddr = model.IPKuURLAPI
 	var proxys []*model.Proxy
-	_, buf, err := DoRequest(model.IPKuURL, time.Second*5)
-	if err != nil {
-		log.Errorf("IPKuURL DoRequest error:%#v", err)
-		return nil, err
-	}
-	doc, err := htmlquery.Parse(bytes.NewReader(buf))
-	if err != nil {
-		log.Errorf("goquery.NewDocument error:%#v", err)
-		return nil, err
-	}
-	l := htmlquery.Find(doc, `//tbody/tr`)
-	for _, h := range l {
-		ipStr := htmlquery.InnerText(htmlquery.FindOne(h, `./td[1]`))
-		portStr := htmlquery.InnerText(htmlquery.FindOne(h, `./td[2]]`))
-		port, err := strconv.Atoi(portStr)
+	var res model.IPKuResponse
+	for true {
+
+		_, buf, err := DoRequest(APIAddr, time.Second*5)
+		if err != nil {
+			log.Errorf("IPKuURLAPI DoRequest error:%#v", err)
+			return nil, err
+		}
+		err = json.Unmarshal(buf, &res)
 		if err != nil {
 			return nil, err
 		}
-		schema := htmlquery.InnerText(htmlquery.FindOne(h, `./td[4]`))
-		proxys = append(proxys, &model.Proxy{
-			IP:     ipStr,
-			Port:   port,
-			Schema: schema,
-		})
+		for _, p := range res.Data.Data {
+			port, err := strconv.Atoi(p.Port)
+			if err != nil {
+				continue
+			}
+			proxys = append(proxys, &model.Proxy{
+				IP:     p.IP,
+				Port:   port,
+				Schema: strings.ToUpper(p.Schema),
+			})
+
+		}
+		if res.Data.NextPageURL == APIAddr {
+			break
+		}
+		APIAddr = res.Data.NextPageURL
+		time.Sleep(time.Second * time.Duration(f.conf.FetchProxy.FetchSingleProxyInterval))
 	}
+
 	return proxys, nil
 }

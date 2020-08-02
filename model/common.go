@@ -12,6 +12,8 @@ var (
 
 	// IPKuURL 库
 	IPKuURL = "https://ip.jiangxianli.com/"
+	// IPKuURLAPI api
+	IPKuURLAPI = "https://ip.jiangxianli.com/api/proxy_ips"
 	// UA User-Agent
 	UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36"
 	// ProxyTypeUnknow 未知代理类型

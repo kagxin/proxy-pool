@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"proxy-pool/model"
+	"strings"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -16,7 +17,7 @@ import (
 func (c *Checker) CheckProxyAvailable(proxy *model.Proxy) (bool, error) {
 	var testURL string
 	testURL = c.Conf.VerifyURL.HTTPS
-	proxyURL, err := url.Parse(fmt.Sprintf("%s://%s:%d", proxy.Schema, proxy.IP, proxy.Port))
+	proxyURL, err := url.Parse(fmt.Sprintf("%s://%s:%d", strings.ToLower(proxy.Schema), proxy.IP, proxy.Port))
 	if err != nil {
 		log.Errorf("url.Parse error:%#v", err)
 		return false, fmt.Errorf("url.Parse error %#v", err)
