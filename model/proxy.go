@@ -23,3 +23,23 @@ type (
 func (p *Proxy) TableName() string {
 	return "proxy"
 }
+
+type (
+	// IPKuProxy ip库
+	IPKuProxy struct {
+		Schema string `json:"protocol"`
+		IP     string `json:"ip"`
+		Port   string `json:"port"`
+	}
+	// DataBody asf
+	DataBody struct {
+		NextPageURL string       `json:"next_page_url"`
+		Data        []*IPKuProxy `json:"data"`
+	}
+	// IPKuResponse rsp
+	IPKuResponse struct {
+		Code int      `json:"code"`
+		Msg  string   `json:"msg"`
+		Data DataBody `json:"data"`
+	}
+)
