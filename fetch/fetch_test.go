@@ -36,7 +36,7 @@ func Test_DoRequest(t *testing.T) {
 }
 
 func Test_GetQuanWang(t *testing.T) {
-	if os.Getenv("CI") == "" {
+	if os.Getenv("CI") != "" {
 		t.Skip("skip Test_GetQuanWang")
 	}
 
@@ -44,7 +44,7 @@ func Test_GetQuanWang(t *testing.T) {
 }
 
 func Test_GetXiChi(t *testing.T) {
-	if os.Getenv("CI") == "" {
+	if os.Getenv("CI") != "" {
 		t.Skip("skip Test_GetXiChi")
 	}
 
@@ -52,7 +52,7 @@ func Test_GetXiChi(t *testing.T) {
 }
 
 func Test_GetIPYunDaiLi(t *testing.T) {
-	if os.Getenv("CI") == "" {
+	if os.Getenv("CI") != "" {
 		t.Skip("skip Test_GetIPYunDaiLi")
 	}
 
@@ -60,7 +60,7 @@ func Test_GetIPYunDaiLi(t *testing.T) {
 }
 
 func Test_GetIPKuByAPI(t *testing.T) {
-	if os.Getenv("CI") == "" {
+	if os.Getenv("CI") != "" {
 		t.Skip("skip Test_GetIPKuByAPI")
 	}
 
@@ -68,7 +68,7 @@ func Test_GetIPKuByAPI(t *testing.T) {
 }
 
 func Test_FetchAllAndCheck(t *testing.T) {
-	if os.Getenv("CI") == "" {
+	if os.Getenv("CI") != "" {
 		t.Skip("skip Test_FetchAllAndCheck")
 	}
 

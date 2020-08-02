@@ -36,5 +36,8 @@ func Test_CheckProxyAvailable(t *testing.T) {
 }
 
 func Test_CheckAll(t *testing.T) {
+	if os.Getenv("CI") != "" {
+		t.Skip("skip Test_CheckAll")
+	}
 	checker.CheckAll()
 }
