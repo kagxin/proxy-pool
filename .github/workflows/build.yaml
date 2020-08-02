@@ -30,7 +30,7 @@ jobs:
               CGO_ENABLED=0 GOOS=linux go build -o main cmd/api/main.go &&
               CGO_ENABLED=0 GOOS=linux go build -o scheduler cmd/scheduler/main.go
         env:
-          PROXY_POOL_CONFIG_FILE: $HOME/proxy-pool/proxy-pool/config/conf.yaml
+          PROXY_POOL_CONFIG_FILE: /home/runner/work/proxy-pool/proxy-pool/config/conf.yaml
           MYSQL_HOST: mysql
           MYSQL_PORT: 3306
           MYSQL_USERNAME: root
