@@ -36,21 +36,41 @@ func Test_DoRequest(t *testing.T) {
 }
 
 func Test_GetQuanWang(t *testing.T) {
+	if os.Getenv("CI") == "" {
+		t.Skip("skip Test_GetQuanWang")
+	}
+
 	fetcher.GetQuanWang()
 }
 
 func Test_GetXiChi(t *testing.T) {
+	if os.Getenv("CI") == "" {
+		t.Skip("skip Test_GetXiChi")
+	}
+
 	fetcher.GetXiChi()
 }
 
 func Test_GetIPYunDaiLi(t *testing.T) {
+	if os.Getenv("CI") == "" {
+		t.Skip("skip Test_GetIPYunDaiLi")
+	}
+
 	fetcher.GetIPYunDaiLi(model.YunDaiLiURL2)
 }
 
 func Test_GetIPKuByAPI(t *testing.T) {
+	if os.Getenv("CI") == "" {
+		t.Skip("skip Test_GetIPKuByAPI")
+	}
+
 	fetcher.GetIPKuByAPI()
 }
 
 func Test_FetchAllAndCheck(t *testing.T) {
+	if os.Getenv("CI") == "" {
+		t.Skip("skip Test_FetchAllAndCheck")
+	}
+
 	fetcher.FetchAllAndCheck()
 }
