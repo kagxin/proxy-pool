@@ -9,7 +9,6 @@ import (
 	"proxy-pool/model"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/antchfx/htmlquery"
@@ -22,52 +21,30 @@ type Fetcher struct {
 	db      *databases.DB
 	conf    *config.Config
 	checker *check.Checker
+	ch      chan *model.Proxy
 }
 
 // NewFetcher 新
-func NewFetcher(db *databases.DB, conf *config.Config, check *check.Checker) *Fetcher {
+func NewFetcher(db *databases.DB, conf *config.Config, check *check.Checker, ch chan *model.Proxy) *Fetcher {
 	return &Fetcher{
+		ch:      ch,
 		db:      db,
 		conf:    conf,
 		checker: check,
 	}
 }
 
-// FetchAllAndCheck 拉取所有的代理并检查可用性之后入库
-func (f *Fetcher) FetchAllAndCheck() {
-	var ch = make(chan struct{}, f.conf.FetchProxy.GoroutineNumber)
-	var wg sync.WaitGroup
-	var allProxys []*model.Proxy
-	var proxySites = []func() ([]*model.Proxy, error){
-		func() ([]*model.Proxy, error) { return f.GetIPYunDaiLi(model.YunDaiLiURL) },
-		func() ([]*model.Proxy, error) { return f.GetIPYunDaiLi(model.YunDaiLiURL2) },
-		f.GetQuanWang,
-		f.GetXiChi,
-		f.GetIPKuByAPI,
-	}
-	for _, GetFunc := range proxySites {
-		proxys, err := GetFunc()
-		if err == nil {
-			allProxys = append(allProxys, proxys...)
-		} else {
-			log.Errorf("拉取代理源失败 err:%#v", err)
-		}
-	}
-
-	for _, proxy := range allProxys {
-		ch <- struct{}{}
-		wg.Add(1)
+// CheckAndInsert 检查ip可用性并插入数据库
+func (f *Fetcher) CheckAndInsert() {
+	for p := range f.ch {
 		go func(proxy *model.Proxy) {
-			defer func() {
-				<-ch
-				wg.Done()
-			}()
 			ok, err := f.checker.CheckProxyAvailable(proxy)
 			if err != nil || !ok {
 				log.Infof("Invalid proxy:%s:%d, %v", proxy.IP, proxy.Port, err)
 				return
 			}
 			log.Infof("Valid proxy:%s:%d.", proxy.IP, proxy.Port)
+
 			// 创建或更新 proxy
 			if err := f.db.Mysql.Table("proxy").Where("ip=?", proxy.IP).Where("port=?", proxy.Port).First(&model.Proxy{}).Error; err != nil {
 				if gorm.IsRecordNotFoundError(err) {
@@ -85,23 +62,30 @@ func (f *Fetcher) FetchAllAndCheck() {
 					log.Errorf("proxy update err:%#v", err.Error())
 				}
 			}
-		}(proxy)
+		}(p)
 	}
-	wg.Wait()
+}
+
+// FetchAll 拉取所有的代理并检查可用性之后入库
+func (f *Fetcher) FetchAll() {
+	go f.GetIPYunDaiLi(model.YunDaiLiURL)
+	go f.GetIPYunDaiLi(model.YunDaiLiURL2)
+	go f.GetQuanWang()
+	go f.GetXiChi()
+	go f.GetIPKuByAPI()
 }
 
 // GetQuanWang 获取全网代理的免费代理
-func (f *Fetcher) GetQuanWang() ([]*model.Proxy, error) {
-	var proxys []*model.Proxy
+func (f *Fetcher) GetQuanWang() error {
 	_, buf, err := DoRequest(model.QuanWangFetchURL, time.Second*5)
 	if err != nil {
 		log.Errorf("GetQuanWang DoRequest error:%#v", err)
-		return nil, err
+		return err
 	}
 	doc, err := htmlquery.Parse(bytes.NewReader(buf))
 	if err != nil {
 		log.Errorf("goquery.NewDocument error:%#v", err)
-		return nil, err
+		return err
 	}
 	l := htmlquery.Find(doc, `//tbody/tr[@class="success" or @class="warning"]`)
 	for _, h := range l {
@@ -116,32 +100,30 @@ func (f *Fetcher) GetQuanWang() ([]*model.Proxy, error) {
 		portStr := htmlquery.InnerText(htmlquery.FindOne(h, `./td[@class="ip"]/*[contains(@class, 'port')]`))
 		port, err := strconv.Atoi(portStr)
 		if err != nil {
-			return nil, err
+			return err
 		}
 		schema := htmlquery.InnerText(htmlquery.FindOne(h, `./td[3]/a/text()`))
 		// TODO: from site
-		proxys = append(proxys, &model.Proxy{
+		f.ch <- &model.Proxy{
 			IP:     ipStr,
 			Port:   port,
 			Schema: schema,
-		})
+		}
 	}
-
-	return proxys, nil
+	return nil
 }
 
 // GetXiChi 获取西刺的免费代理
-func (f *Fetcher) GetXiChi() ([]*model.Proxy, error) {
-	var proxys []*model.Proxy
+func (f *Fetcher) GetXiChi() error {
 	_, buf, err := DoRequest(model.KuaiDaiLiFetchURL, time.Second*5)
 	if err != nil {
 		log.Errorf("XiChiFetchURL DoRequest error:%#v", err)
-		return nil, err
+		return err
 	}
 	doc, err := htmlquery.Parse(bytes.NewReader(buf))
 	if err != nil {
 		log.Errorf("goquery.NewDocument error:%#v", err)
-		return nil, err
+		return err
 	}
 	l := htmlquery.Find(doc, `//tbody/tr`)
 	for _, h := range l {
@@ -149,31 +131,30 @@ func (f *Fetcher) GetXiChi() ([]*model.Proxy, error) {
 		portStr := htmlquery.InnerText(htmlquery.FindOne(h, `./td[2]]`))
 		port, err := strconv.Atoi(portStr)
 		if err != nil {
-			return nil, err
+			return err
 		}
 		schema := htmlquery.InnerText(htmlquery.FindOne(h, `./td[4]`))
-		proxys = append(proxys, &model.Proxy{
+		f.ch <- &model.Proxy{
 			IP:     ipStr,
 			Port:   port,
 			Schema: schema,
-		})
+		}
 	}
 
-	return proxys, nil
+	return nil
 }
 
 // GetIPYunDaiLi 获取ip海的免费代理
-func (f *Fetcher) GetIPYunDaiLi(url string) ([]*model.Proxy, error) {
-	var proxys []*model.Proxy
+func (f *Fetcher) GetIPYunDaiLi(url string) error {
 	_, buf, err := DoRequest(url, time.Second*5)
 	if err != nil {
 		log.Errorf("IPSeaURL DoRequest error:%#v", err)
-		return nil, err
+		return err
 	}
 	doc, err := htmlquery.Parse(bytes.NewReader(buf))
 	if err != nil {
 		log.Errorf("goquery.NewDocument error:%#v", err)
-		return nil, err
+		return err
 	}
 	l := htmlquery.Find(doc, `//tbody/tr`)
 	for _, h := range l {
@@ -181,46 +162,43 @@ func (f *Fetcher) GetIPYunDaiLi(url string) ([]*model.Proxy, error) {
 		portStr := htmlquery.InnerText(htmlquery.FindOne(h, `./td[2]]`))
 		port, err := strconv.Atoi(portStr)
 		if err != nil {
-			return nil, err
+			return err
 		}
 		schema := htmlquery.InnerText(htmlquery.FindOne(h, `./td[4]`))
-		proxys = append(proxys, &model.Proxy{
+		f.ch <- &model.Proxy{
 			IP:     ipStr,
 			Port:   port,
 			Schema: schema,
-		})
+		}
 	}
-
-	return proxys, nil
+	return nil
 }
 
 // GetIPKuByAPI 获取ip库
-func (f *Fetcher) GetIPKuByAPI() ([]*model.Proxy, error) {
+func (f *Fetcher) GetIPKuByAPI() error {
 	var APIAddr = model.IPKuURLAPI
-	var proxys []*model.Proxy
 	var res model.IPKuResponse
 	for true {
 
 		_, buf, err := DoRequest(APIAddr, time.Second*5)
 		if err != nil {
 			log.Errorf("IPKuURLAPI DoRequest error:%#v", err)
-			return nil, err
+			return err
 		}
 		err = json.Unmarshal(buf, &res)
 		if err != nil {
-			return nil, err
+			return err
 		}
 		for _, p := range res.Data.Data {
 			port, err := strconv.Atoi(p.Port)
 			if err != nil {
 				continue
 			}
-			proxys = append(proxys, &model.Proxy{
+			f.ch <- &model.Proxy{
 				IP:     p.IP,
 				Port:   port,
 				Schema: strings.ToUpper(p.Schema),
-			})
-
+			}
 		}
 		if res.Data.NextPageURL == APIAddr {
 			break
@@ -229,5 +207,5 @@ func (f *Fetcher) GetIPKuByAPI() ([]*model.Proxy, error) {
 		time.Sleep(time.Second * time.Duration(f.conf.FetchProxy.FetchSingleProxyInterval))
 	}
 
-	return proxys, nil
+	return nil
 }
