@@ -18,7 +18,8 @@ func main() {
 	gocron.Every(config.CheckProxy.CheckAllInterval).Seconds().Do(checker.CheckAll)
 	// 定时拉取
 	fetcher := fetch.NewFetcher(db, config, checker, ch)
-
+	// 启动及拉取一次数据
+	fetcher.FetchAll()
 	gocron.Every(config.FetchProxy.FetchProxyInterval).Seconds().Do(fetcher.FetchAll)
 
 	// start
