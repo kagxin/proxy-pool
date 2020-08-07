@@ -1,6 +1,6 @@
 # proxy-pool
 
-搭建自己的代理池，可以用于爬虫等场景
+搭建自己的代理池，可以用于爬虫等场景 [github项目地址](https://github.com/kagxin/proxy-pool)
 
 ### 体验地址
 * 获取一个proxy [/proxy/get](http://81.68.131.249:9001/proxy/get)
