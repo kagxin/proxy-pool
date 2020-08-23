@@ -73,6 +73,7 @@ func (f *Fetcher) FetchAll() {
 	go f.GetQuanWang()
 	go f.GetXiChi()
 	go f.GetIPKuByAPI()
+	go f.GetQiYunProxy()
 }
 
 // GetQuanWang 获取全网代理的免费代理
@@ -207,5 +208,36 @@ func (f *Fetcher) GetIPKuByAPI() error {
 		time.Sleep(time.Second * time.Duration(f.conf.FetchProxy.FetchSingleProxyInterval))
 	}
 
+	return nil
+}
+
+// GetQiYunProxy 获取齐云免费proxy
+func (f *Fetcher) GetQiYunProxy() error {
+
+	_, buf, err := DoRequest(model.QiYunProxyURL, time.Second*5)
+	if err != nil {
+		log.Errorf("QiYunProxyURL DoRequest error:%+v", err)
+		return err
+	}
+	doc, err := htmlquery.Parse(bytes.NewReader(buf))
+	if err != nil {
+		log.Errorf("goquery.NewDocument error:%#v", err)
+		return err
+	}
+	l := htmlquery.Find(doc, `//tbody/tr`)
+	for _, h := range l {
+		ipStr := htmlquery.InnerText(htmlquery.FindOne(h, `./td[1]`))
+		portStr := htmlquery.InnerText(htmlquery.FindOne(h, `./td[2]]`))
+		port, err := strconv.Atoi(portStr)
+		if err != nil {
+			return err
+		}
+		schema := htmlquery.InnerText(htmlquery.FindOne(h, `./td[4]`))
+		f.ch <- &model.Proxy{
+			IP:     ipStr,
+			Port:   port,
+			Schema: schema,
+		}
+	}
 	return nil
 }

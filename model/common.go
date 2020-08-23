@@ -9,7 +9,8 @@ var (
 	YunDaiLiURL = "http://www.ip3366.net/"
 	// YunDaiLiURL2 普通代理
 	YunDaiLiURL2 = "http://www.ip3366.net/free/?stype=2"
-
+	// QiYunProxyURL 中国ip代理
+	QiYunProxyURL = "https://www.7yip.cn/free/"
 	// IPKuURL 库
 	IPKuURL = "https://ip.jiangxianli.com/"
 	// IPKuURLAPI api
