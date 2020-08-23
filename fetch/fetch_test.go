@@ -14,9 +14,10 @@ import (
 var conf *config.Config
 var db *databases.DB
 var fetcher *Fetcher
+var ch chan *model.Proxy
 
 func TestMain(m *testing.M) {
-	var ch = make(chan *model.Proxy)
+	ch = make(chan *model.Proxy)
 	conf = config.New()
 	db = databases.New(conf.Mysql)
 	checker := check.NewChecker(db, conf)
@@ -42,4 +43,14 @@ func Test_FetchAllAndCheck(t *testing.T) {
 	}
 	go fetcher.FetchAll()
 	fetcher.CheckAndInsert()
+}
+
+func Test_GetZhongGuoIP(t *testing.T) {
+	if os.Getenv("CI") != "" {
+		t.Skip("skip Test_FetchAllAndCheck")
+	}
+	go fetcher.GetQiYunProxy()
+	for proxy := range ch {
+		fmt.Printf("%#v\n", proxy)
+	}
 }
