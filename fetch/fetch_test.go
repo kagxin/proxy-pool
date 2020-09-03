@@ -17,7 +17,7 @@ var fetcher *Fetcher
 var ch chan *model.Proxy
 
 func TestMain(m *testing.M) {
-	ch = make(chan *model.Proxy)
+	ch = make(chan *model.Proxy, 1000)
 	conf = config.New()
 	db = databases.New(conf.Mysql)
 	checker := check.NewChecker(db, conf)
@@ -53,4 +53,15 @@ func Test_GetZhongGuoIP(t *testing.T) {
 	for proxy := range ch {
 		fmt.Printf("%#v\n", proxy)
 	}
+}
+
+func Test_66IP(t *testing.T) {
+	if os.Getenv("CI") != "" {
+		t.Skip("skip Test_66IP")
+	}
+	go fetcher.Get66Proxy()
+	for proxy := range ch {
+		fmt.Printf("%#v", proxy)
+	}
+
 }

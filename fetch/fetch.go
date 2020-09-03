@@ -74,6 +74,7 @@ func (f *Fetcher) FetchAll() {
 	go f.GetXiChi()
 	go f.GetIPKuByAPI()
 	go f.GetQiYunProxy()
+	go f.Get66Proxy()
 }
 
 // GetQuanWang 获取全网代理的免费代理
@@ -238,6 +239,41 @@ func (f *Fetcher) GetQiYunProxy() error {
 			Port:   port,
 			Schema: schema,
 		}
+	}
+	return nil
+}
+
+// Get66Proxy 获取66免费proxy
+func (f *Fetcher) Get66Proxy() error {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Errorf("Get66Proxy %+v", err)
+		}
+	}()
+	_, buf, err := DoRequest(model.P66ProxyURL, time.Second*5)
+	if err != nil {
+		log.Errorf("P66ProxyURL DoRequest error:%+v", err)
+		return err
+	}
+	doc, err := htmlquery.Parse(bytes.NewReader(buf))
+	if err != nil {
+		log.Errorf("goquery.NewDocument error:%#v", err)
+		return err
+	}
+	l := htmlquery.Find(doc, `//*[@id="main"]/div/div[1]/table/tbody/tr`)
+	for _, h := range l {
+		ipStr := htmlquery.InnerText(htmlquery.FindOne(h, `./td[1]`))
+		portStr := htmlquery.InnerText(htmlquery.FindOne(h, `./td[2]]`))
+		port, err := strconv.Atoi(portStr)
+		if err != nil {
+			continue
+		}
+		p := &model.Proxy{
+			IP:     ipStr,
+			Port:   port,
+			Schema: "HTTP",
+		}
+		f.ch <- p
 	}
 	return nil
 }
