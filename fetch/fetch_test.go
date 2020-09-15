@@ -14,14 +14,12 @@ import (
 var conf *config.Config
 var db *databases.DB
 var fetcher *Fetcher
-var ch chan *model.Proxy
 
 func TestMain(m *testing.M) {
-	ch = make(chan *model.Proxy, 1000)
 	conf = config.New()
 	db = databases.New(conf.Mysql)
 	checker := check.NewChecker(db, conf)
-	fetcher = NewFetcher(db, conf, checker, ch)
+	fetcher = NewFetcher(db, conf, checker)
 	os.Exit(m.Run())
 }
 
@@ -41,27 +39,20 @@ func Test_FetchAllAndCheck(t *testing.T) {
 	if os.Getenv("CI") != "" {
 		t.Skip("skip Test_FetchAllAndCheck")
 	}
-	go fetcher.FetchAll()
-	fetcher.CheckAndInsert()
+	fetcher.FetchAll()
+	time.Sleep(time.Second * 100)
 }
 
 func Test_GetZhongGuoIP(t *testing.T) {
 	if os.Getenv("CI") != "" {
 		t.Skip("skip Test_FetchAllAndCheck")
 	}
-	go fetcher.GetQiYunProxy()
-	for proxy := range ch {
-		fmt.Printf("%#v\n", proxy)
-	}
+	fetcher.GetQiYunProxy()
 }
 
 func Test_66IP(t *testing.T) {
 	if os.Getenv("CI") != "" {
 		t.Skip("skip Test_66IP")
 	}
-	go fetcher.Get66Proxy()
-	for proxy := range ch {
-		fmt.Printf("%#v", proxy)
-	}
-
+	fetcher.Get66Proxy()
 }
