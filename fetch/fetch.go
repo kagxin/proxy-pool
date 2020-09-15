@@ -25,9 +25,8 @@ type Fetcher struct {
 }
 
 // NewFetcher 新
-func NewFetcher(db *databases.DB, conf *config.Config, check *check.Checker, ch chan *model.Proxy) *Fetcher {
+func NewFetcher(db *databases.DB, conf *config.Config, check *check.Checker) *Fetcher {
 	return &Fetcher{
-		ch:      ch,
 		db:      db,
 		conf:    conf,
 		checker: check,
@@ -35,35 +34,32 @@ func NewFetcher(db *databases.DB, conf *config.Config, check *check.Checker, ch 
 }
 
 // CheckAndInsert 检查ip可用性并插入数据库
-func (f *Fetcher) CheckAndInsert() {
-	for p := range f.ch {
-		go func(proxy *model.Proxy) {
-			ok, err := f.checker.CheckProxyAvailable(proxy)
-			if err != nil || !ok {
-				log.Infof("Invalid proxy:%s:%d, %v", proxy.IP, proxy.Port, err)
-				return
-			}
-			log.Infof("Valid proxy:%s:%d.", proxy.IP, proxy.Port)
-
-			// 创建或更新 proxy
-			if err := f.db.Mysql.Table("proxy").Where("ip=?", proxy.IP).Where("port=?", proxy.Port).First(&model.Proxy{}).Error; err != nil {
-				if gorm.IsRecordNotFoundError(err) {
-					if err := f.db.Mysql.Omit("ctime", "mtime", "check_time").Create(proxy).Error; err != nil {
-						log.Errorf("f.db.DB.Create ip:%s, port:%d error:%#v", proxy.IP, proxy.Port, err.Error())
-					}
-				} else {
-					log.Errorf("db.DB.Table first %#v", err.Error())
-				}
-			} else {
-				if err := f.db.Mysql.Table("proxy").Where("ip=?", proxy.IP).Where("port=?", proxy.Port).Omit("ctime", "mtime", "check_time").Updates(map[string]interface{}{
-					"schema":     proxy.Schema,
-					"is_deleted": false,
-				}).Error; err != nil {
-					log.Errorf("proxy update err:%#v", err.Error())
-				}
-			}
-		}(p)
+func (f *Fetcher) CheckAndInsert(proxy *model.Proxy) {
+	ok, err := f.checker.CheckProxyAvailable(proxy)
+	if err != nil || !ok {
+		log.Infof("Invalid proxy:%s:%d, %v", proxy.IP, proxy.Port, err)
+		return
 	}
+	log.Infof("Valid proxy:%s:%d.", proxy.IP, proxy.Port)
+
+	// 创建或更新 proxy
+	if err := f.db.Mysql.Table("proxy").Where("ip=?", proxy.IP).Where("port=?", proxy.Port).First(&model.Proxy{}).Error; err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			if err := f.db.Mysql.Omit("ctime", "mtime", "check_time").Create(proxy).Error; err != nil {
+				log.Errorf("f.db.DB.Create ip:%s, port:%d error:%#v", proxy.IP, proxy.Port, err.Error())
+			}
+		} else {
+			log.Errorf("db.DB.Table first %#v", err.Error())
+		}
+	} else {
+		if err := f.db.Mysql.Table("proxy").Where("ip=?", proxy.IP).Where("port=?", proxy.Port).Omit("ctime", "mtime", "check_time").Updates(map[string]interface{}{
+			"schema":     proxy.Schema,
+			"is_deleted": false,
+		}).Error; err != nil {
+			log.Errorf("proxy update err:%#v", err.Error())
+		}
+	}
+
 }
 
 // FetchAll 拉取所有的代理并检查可用性之后入库
@@ -106,11 +102,11 @@ func (f *Fetcher) GetQuanWang() error {
 		}
 		schema := htmlquery.InnerText(htmlquery.FindOne(h, `./td[3]/a/text()`))
 		// TODO: from site
-		f.ch <- &model.Proxy{
+		f.CheckAndInsert(&model.Proxy{
 			IP:     ipStr,
 			Port:   port,
 			Schema: schema,
-		}
+		})
 	}
 	return nil
 }
@@ -136,11 +132,11 @@ func (f *Fetcher) GetXiChi() error {
 			return err
 		}
 		schema := htmlquery.InnerText(htmlquery.FindOne(h, `./td[4]`))
-		f.ch <- &model.Proxy{
+		f.CheckAndInsert(&model.Proxy{
 			IP:     ipStr,
 			Port:   port,
 			Schema: schema,
-		}
+		})
 	}
 
 	return nil
@@ -167,11 +163,11 @@ func (f *Fetcher) GetIPYunDaiLi(url string) error {
 			return err
 		}
 		schema := htmlquery.InnerText(htmlquery.FindOne(h, `./td[4]`))
-		f.ch <- &model.Proxy{
+		f.CheckAndInsert(&model.Proxy{
 			IP:     ipStr,
 			Port:   port,
 			Schema: schema,
-		}
+		})
 	}
 	return nil
 }
@@ -196,11 +192,11 @@ func (f *Fetcher) GetIPKuByAPI() error {
 			if err != nil {
 				continue
 			}
-			f.ch <- &model.Proxy{
+			f.CheckAndInsert(&model.Proxy{
 				IP:     p.IP,
 				Port:   port,
 				Schema: strings.ToUpper(p.Schema),
-			}
+			})
 		}
 		if res.Data.NextPageURL == APIAddr {
 			break
@@ -234,11 +230,11 @@ func (f *Fetcher) GetQiYunProxy() error {
 			return err
 		}
 		schema := htmlquery.InnerText(htmlquery.FindOne(h, `./td[4]`))
-		f.ch <- &model.Proxy{
+		f.CheckAndInsert(&model.Proxy{
 			IP:     ipStr,
 			Port:   port,
 			Schema: schema,
-		}
+		})
 	}
 	return nil
 }
@@ -268,12 +264,11 @@ func (f *Fetcher) Get66Proxy() error {
 		if err != nil {
 			continue
 		}
-		p := &model.Proxy{
+		f.CheckAndInsert(&model.Proxy{
 			IP:     ipStr,
 			Port:   port,
 			Schema: "HTTP",
-		}
-		f.ch <- p
+		})
 	}
 	return nil
 }
