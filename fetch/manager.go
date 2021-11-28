@@ -7,7 +7,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/robfig/cron/v3"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -18,7 +17,6 @@ type FetcherManager struct {
 	concurrency int
 	fetchers    []Fetcher
 	interval    time.Duration // s
-	cronSrv     *cron.Cron
 
 	ctx     context.Context
 	cacnel  context.CancelFunc
@@ -26,13 +24,11 @@ type FetcherManager struct {
 }
 
 func New(stroage stroage.Stroage, concurrency int, interval time.Duration) *FetcherManager {
-	cronSrv := cron.New(cron.WithSeconds())
 	ctx, cancel := context.WithCancel(context.Background())
 	return &FetcherManager{
 		stroage:     stroage,
 		concurrency: concurrency,
 		interval:    interval,
-		cronSrv:     cronSrv,
 		ctx:         ctx,
 		cacnel:      cancel,
 		conChan:     make(chan struct{}, concurrency),
