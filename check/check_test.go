@@ -1,43 +1,40 @@
 package check
 
 import (
+	"context"
 	"fmt"
-	"os"
-	"proxy-pool/config"
-	"proxy-pool/databases"
-	"proxy-pool/model"
+	"proxy-pool/stroage"
 	"testing"
+	"time"
 )
 
-var conf *config.Config
-var db *databases.DB
-var checker *Checker
-
-func TestMain(m *testing.M) {
-	conf = config.New()
-	db = databases.New(conf.Mysql)
-	checker = NewChecker(db, conf)
-
-	os.Exit(m.Run())
-}
-
-func Test_CheckProxyAvailable(t *testing.T) {
-
-	proxy := &model.Proxy{
-		Schema: "http",
-		IP:     "45.77.65.128",
-		Port:   8080,
-	}
-	ok, err := checker.CheckProxyAvailable(proxy)
-	if err != nil {
-		fmt.Printf("%t, %#v\n", ok, err)
-	}
-	fmt.Println(ok, err)
-}
-
 func Test_CheckAll(t *testing.T) {
-	if os.Getenv("CI") != "" {
-		t.Skip("skip Test_CheckAll")
-	}
-	checker.CheckAll()
+	mem := stroage.MemoryStroage{}
+	mem.Put(context.Background(), &stroage.ProxyEntity{
+		Schema: "http",
+		Proxy:  "127.0.0.1:7890",
+		Source: "",
+	})
+	checker := New(&mem, 10, 5)
+	checker.run()
+	proxys, _ := mem.GetAll(context.Background())
+	fmt.Printf("%+v", proxys)
+}
+
+func Test_CheckAllRun(t *testing.T) {
+	mem := stroage.MemoryStroage{}
+	mem.Put(context.Background(), &stroage.ProxyEntity{
+		Schema: "http",
+		Proxy:  "127.0.0.1:7890",
+		Source: "",
+	})
+	checker := New(&mem, 10*time.Second, 5)
+	go checker.Run()
+	time.Sleep(20 * time.Second)
+	checker.Stop()
+
+	time.Sleep(20 * time.Second)
+
+	// proxys, _ := mem.GetAll(context.Background())
+	// fmt.Printf("%+v", proxys)
 }

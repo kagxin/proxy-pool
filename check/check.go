@@ -1,70 +1,84 @@
 package check
 
 import (
-	"fmt"
-	"proxy-pool/config"
-	"proxy-pool/databases"
-	"proxy-pool/model"
+	"context"
+	"proxy-pool/stroage"
 	"sync"
 	"time"
+
+	"proxy-pool/internal"
 
 	log "github.com/sirupsen/logrus"
 )
 
 // Checker 检查IP可用性
 type Checker struct {
-	DB   *databases.DB
-	Conf *config.Config
+	interval time.Duration //
+	stroage  stroage.Stroage
+
+	ctx     context.Context
+	cancel  context.CancelFunc
+	conChan chan struct{}
 }
 
-// NewChecker 检查IP可用性
-func NewChecker(db *databases.DB, conf *config.Config) *Checker {
+// New
+func New(s stroage.Stroage, interval time.Duration, concurrency int) *Checker {
+	ctx, cancel := context.WithCancel(context.Background())
 	return &Checker{
-		DB:   db,
-		Conf: conf,
+		interval: interval,
+		stroage:  s,
+		ctx:      ctx,
+		cancel:   cancel,
+		conChan:  make(chan struct{}, concurrency),
 	}
 }
 
-// CheckAll 检查所有IP的可用性
-func (c *Checker) CheckAll() {
-	log.Infof("check all ip avaliable start...")
-	var wg sync.WaitGroup
-	ch := make(chan struct{}, c.Conf.CheckProxy.GoroutineNumber)
+func (c *Checker) Run() {
+	timeTicker := time.NewTicker(c.interval)
+	for {
+		select {
+		case <-timeTicker.C:
+			c.run()
+		case <-c.ctx.Done():
+			log.Infof("Checker Run stop!!\n")
+			return
+		}
+	}
+}
 
-	proxys := make([]*model.Proxy, 64)
-	if err := c.DB.Mysql.Where("is_deleted=?", 0).Find(&proxys).Error; err != nil {
-		log.Errorf("get proxys from db %#v", err.Error())
+func (c *Checker) Stop() {
+	defer c.cancel()
+}
+
+func (c *Checker) run() {
+	log.Info("check run!!\n")
+	var wg sync.WaitGroup
+	proxys, err := c.stroage.GetAll(c.ctx)
+	if err != nil {
+		log.Errorf("c.stroage.GetAll(context.Background());err:%+v", err)
 		return
 	}
-	for _, proxy := range proxys {
-		ch <- struct{}{}
-		wg.Add(1)
-		go func(proxy *model.Proxy) {
-			defer func() {
-				<-ch
-				wg.Done()
-			}()
-			ok, err := c.CheckProxyAvailable(proxy)
-			// 代理失效 标记删除
-			if err != nil || !ok {
-				fmt.Println(proxy.ID, proxy.IP)
-				if err := c.DB.Mysql.Table("proxy").
-					Where("id=?", proxy.ID).
-					Updates(map[string]interface{}{"is_deleted": true}).Error; err != nil {
-					log.Errorf("update error %#v", err.Error())
-				}
-				log.Infof("proxy check faild, IP:%s, Port:%d, ok:%t\n", proxy.IP, proxy.Port, ok)
-			} else {
-				// 可用更新check时间
-				err := c.DB.Mysql.Table("proxy").Where("id=?", proxy.ID).Updates(map[string]interface{}{"check_time": time.Now()}).Error
-				if err != nil {
-					log.Infof("Updates check_time faild %#v", err.Error())
-				}
-				log.Infof("proxy check ok,IP:%s, Port:%d\n", proxy.IP, proxy.Port)
-			}
 
+	for _, proxy := range proxys {
+		c.conChan <- struct{}{}
+		wg.Add(1)
+		go func(proxy *stroage.ProxyEntity) {
+			defer func() {
+				wg.Done()
+				<-c.conChan
+			}()
+			ok, err := internal.CheckProxyAvailable(proxy)
+			if err == nil && ok {
+				log.Infof("proxy [%s], check ok", proxy.Proxy)
+			} else {
+				log.Infof("proxy [%s], check faild", proxy.Proxy)
+				if err := c.stroage.Delete(c.ctx, proxy.Proxy); err != nil {
+					log.Errorf("c.stroage.Delete(context.Background(), %s); err:%+v", proxy.Proxy, err)
+					return
+				}
+			}
 		}(proxy)
 	}
 	wg.Wait()
-	log.Infof("check all ip avaliable end.")
+	log.Info("check end!!\n")
 }
