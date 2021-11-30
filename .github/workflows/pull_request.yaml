@@ -8,7 +8,7 @@ jobs:
   run_test:
     name: Run Test
     runs-on: ubuntu-latest
-    container: golang:1.14
+    container: golang:1.15
     services:
       mysql:
         image: mysql
