@@ -27,13 +27,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload Release Asset Mktxt
-        id: upload-release-asset-mktxt
+      - name: Upload Release Proxy Pool
+        id: upload-release-proxy-pool
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.get_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-          asset_path: 
-          asset_name: 
+          asset_path: proxy-pool
+          asset_name: proxy-pool
           asset_content_type: application/octet-stream
