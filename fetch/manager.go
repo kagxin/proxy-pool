@@ -1,6 +1,7 @@
 package fetch
 
 import (
+	"container/list"
 	"context"
 	"proxy-pool/internal"
 	"proxy-pool/stroage"
@@ -40,11 +41,12 @@ func (fm *FetcherManager) Register(fetchers []Fetcher) {
 }
 
 func (fm *FetcherManager) Run() {
+	go fm.run()
 	timeTicker := time.NewTicker(fm.interval)
 	for {
 		select {
 		case <-timeTicker.C:
-			fm.run()
+			go fm.run()
 		case <-fm.ctx.Done():
 			log.Infof("FetcherManager Run stop!!\n")
 			return
@@ -55,10 +57,10 @@ func (fm *FetcherManager) Run() {
 func (fm *FetcherManager) run() {
 	log.Infof("FetcherManager fetch begin!!\n")
 	var wg sync.WaitGroup
-	for _, fetcher := range fm.fetchers {
-		_fetcher := fetcher
+	var proxyList = list.New()            // 并发安全的
+	for _, fetcher := range fm.fetchers { // 爬取页面 proxy
 		wg.Add(1)
-		go func() {
+		go func(_fetcher Fetcher) {
 			defer func() {
 				wg.Done()
 				if err := recover(); err != nil {
@@ -71,18 +73,32 @@ func (fm *FetcherManager) run() {
 				return
 			}
 			for _, proxy := range proxys {
-				ok, err := internal.CheckProxyAvailable(proxy)
-				if ok && err == nil {
-					log.Infof("FetcherManager check [%s] ok", proxy.Proxy)
-					if err := fm.stroage.Put(fm.ctx, proxy); err != nil {
-						log.Errorf("fm.stroage.Puts(fm.ctx, %+v); err:%+v", proxys, err)
-						return
-					}
-				} else {
-					log.Infof("FetcherManager check [%s] faild", proxy.Proxy)
-				}
+				proxyList.PushBack(proxy)
 			}
-		}()
+		}(fetcher)
+	}
+	wg.Wait()
+
+	// 校验可用性
+	for v := proxyList.Front(); v != nil; v = v.Next() {
+		fm.conChan <- struct{}{}
+		wg.Add(1)
+		go func(proxy *stroage.ProxyEntity) {
+			defer func() {
+				<-fm.conChan
+				wg.Done()
+			}()
+			ok, err := internal.CheckProxyAvailable(fm.ctx, proxy, internal.HttpBinTimeOut)
+			if ok && err == nil {
+				log.Infof("FetcherManager check [%s] ok", proxy.Proxy)
+				if err := fm.stroage.Put(fm.ctx, proxy); err != nil {
+					log.Errorf("fm.stroage.Puts(fm.ctx, %+v); err:%+v", proxy, err)
+					return
+				}
+			} else {
+				log.Infof("FetcherManager check [%s] faild", proxy.Proxy)
+			}
+		}(v.Value.(*stroage.ProxyEntity))
 	}
 	wg.Wait()
 	log.Infof("FetcherManager fetch end !!!\n")

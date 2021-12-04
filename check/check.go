@@ -13,7 +13,7 @@ import (
 
 // Checker 检查IP可用性
 type Checker struct {
-	interval time.Duration //
+	interval time.Duration // 检查时间间隔
 	stroage  stroage.Stroage
 
 	ctx     context.Context
@@ -64,10 +64,10 @@ func (c *Checker) run() {
 		wg.Add(1)
 		go func(proxy *stroage.ProxyEntity) {
 			defer func() {
-				wg.Done()
 				<-c.conChan
+				wg.Done()
 			}()
-			ok, err := internal.CheckProxyAvailable(proxy)
+			ok, err := internal.CheckProxyAvailable(c.ctx, proxy, internal.HttpBinTimeOut)
 			if err == nil && ok {
 				log.Infof("proxy [%s], check ok", proxy.Proxy)
 			} else {

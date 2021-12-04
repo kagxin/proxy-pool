@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// InitRouter 初始化路由
+// InitHttp 初始化路由
 func InitHttp(s stroage.Stroage) *gin.Engine {
 	r := gin.Default()
 	proxy := r.Group("proxy")

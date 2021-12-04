@@ -1,22 +1,24 @@
 package internal
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
 	"net/http"
 	"net/url"
 	"proxy-pool/stroage"
 	"strings"
+	"time"
 )
 
 // CheckProxyAvailable
-func CheckProxyAvailable(proxy *stroage.ProxyEntity) (able bool, err error) {
+func CheckProxyAvailable(ctx context.Context, proxy *stroage.ProxyEntity, timeout time.Duration) (able bool, err error) {
 	// ref: https://gist.github.com/leafney/0beac92b784fae03c070b09983704c6f
 	proxyUrl, err := url.Parse(fmt.Sprintf("http://%s", proxy.Proxy))
 	if err != nil {
 		return false, err
 	}
-	request, _ := http.NewRequest("GET", HttpBin, nil)
+	request, _ := http.NewRequestWithContext(ctx, "GET", HttpBin, nil)
 	request.Header.Set("User-Agent", UA)
 
 	var insecureSkipVerify = false
@@ -31,7 +33,7 @@ func CheckProxyAvailable(proxy *stroage.ProxyEntity) (able bool, err error) {
 
 	client := &http.Client{
 		Transport: tr,
-		Timeout:   HttpBinTimeOut, //超时时间
+		Timeout:   timeout, //超时时间
 	}
 
 	resp, err := client.Do(request)

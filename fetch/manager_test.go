@@ -10,7 +10,8 @@ import (
 
 func Test_manage(t *testing.T) {
 	mem := stroage.NewMemoryStroage()
-	m := New(mem, 10, 10*time.Second)
+	m := New(mem, 10, 10*time.Minute)
+	defer m.Stop()
 	m.Register([]Fetcher{GetQuanWang})
 	m.run()
 	proxys, err := mem.GetAll(context.Background())

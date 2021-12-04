@@ -2,9 +2,9 @@ version: "3"
 
 services:
   proxy-pool:
-    image: proxypool 
+    build: .
     container_name: proxy-pool
     restart: always
     ports:
       - 8080:8080
-    command: main
+    command: proxy-pool
