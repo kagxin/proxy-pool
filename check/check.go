@@ -38,7 +38,7 @@ func (c *Checker) Run() {
 	for {
 		select {
 		case <-timeTicker.C:
-			c.run()
+			go c.run()
 		case <-c.ctx.Done():
 			log.Infof("Checker Run stop!!\n")
 			return
