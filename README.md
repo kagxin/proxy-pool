@@ -8,8 +8,8 @@
 搭建自己的免费代理池，详细[文档地址](https://golang-proxy-pool.readthedocs.io/)
 
 ### 体验地址
-* 获取一个proxy [get](http://81.68.131.249:9001/proxy/get)
-* 获取所有可用proxy [getall](http://81.68.131.249:9001/proxy/getall)
+* 获取一个proxy [get](http://150.158.87.243:8080/proxy/get)
+* 获取所有可用proxy [getall](http://150.158.87.243:8080/proxy/getall)
 
 ### 接口描述
 
@@ -19,13 +19,13 @@
 |`/getall`|GET|获取所有可用代理||
 
 ### 快速开始
-* 下载项目的docker-compose文件
+* 下载项目的 docker-compose 文件
 ```bash
-docker-compose up -d
+docker-compose up
 ```
 
-* 等待几分钟访问9001端口
-获取一个proxy `http://localhost:9001/proxy/get`
+* 等待一会儿访问 8080 端口
+获取一个proxy `http://localhost:8080/proxy/get`
 
 ### 已添加代理源
 |代理源|地址|
