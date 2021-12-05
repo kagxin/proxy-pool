@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	_ Stroage = &MemoryStroage{}
+	_ Stroage = (*MemoryStroage)(nil)
 )
 
 type MemoryStroage struct {
