@@ -6,6 +6,7 @@ import (
 	"proxy-pool/internal"
 	"proxy-pool/stroage"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -13,27 +14,44 @@ import (
 
 type Fetcher func(context.Context) ([]*stroage.ProxyEntity, error)
 
+type Option func(*FetcherManager)
+
+func IntervalOption(interval time.Duration) Option {
+	return func(f *FetcherManager) {
+		f.interval = interval
+	}
+}
+
+func ConcurrencyOption(concurrency int) Option {
+	return func(f *FetcherManager) {
+		f.conChan = make(chan struct{}, concurrency)
+	}
+}
+
 type FetcherManager struct {
-	stroage     stroage.Stroage
-	concurrency int
-	fetchers    []Fetcher
-	interval    time.Duration // s
+	stroage  stroage.Stroage
+	fetchers []Fetcher
+	interval time.Duration // s
+	runState int32
 
 	ctx     context.Context
 	cacnel  context.CancelFunc
 	conChan chan struct{}
 }
 
-func New(stroage stroage.Stroage, concurrency int, interval time.Duration) *FetcherManager {
+func New(stroage stroage.Stroage, oo ...Option) *FetcherManager {
 	ctx, cancel := context.WithCancel(context.Background())
-	return &FetcherManager{
-		stroage:     stroage,
-		concurrency: concurrency,
-		interval:    interval,
-		ctx:         ctx,
-		cacnel:      cancel,
-		conChan:     make(chan struct{}, concurrency),
+	f := &FetcherManager{
+		stroage:  stroage,
+		interval: internal.Interval,
+		ctx:      ctx,
+		cacnel:   cancel,
+		conChan:  make(chan struct{}, internal.Concurrency),
 	}
+	for _, o := range oo {
+		o(f)
+	}
+	return f
 }
 
 func (fm *FetcherManager) Register(fetchers []Fetcher) {
@@ -55,6 +73,12 @@ func (fm *FetcherManager) Run() {
 }
 
 func (fm *FetcherManager) run() {
+	if atomic.LoadInt32(&fm.runState) == internal.Running { // 已经是 runing 状态
+		log.Errorln("FetcherManager already run")
+		return
+	}
+	atomic.StoreInt32(&fm.runState, internal.Running)
+
 	log.Infof("FetcherManager fetch begin!!\n")
 	var wg sync.WaitGroup
 	var proxyList = list.New()            // 并发安全的

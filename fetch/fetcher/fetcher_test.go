@@ -1,4 +1,4 @@
-package fetch
+package fetcher
 
 import (
 	"context"
@@ -8,5 +8,10 @@ import (
 
 func Test_GetQuanWang(t *testing.T) {
 	proxys, err := GetQuanWang(context.Background())
+	fmt.Printf("%+v, %+v", proxys, err)
+}
+
+func Test_GetIPKuByAPI(t *testing.T) {
+	proxys, err := GetIPKuByAPI(context.Background())
 	fmt.Printf("%+v, %+v", proxys, err)
 }

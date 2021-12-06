@@ -8,3 +8,13 @@ var (
 	HttpBin        = "http://httpbin.org/get"
 	HttpBinTimeOut = 10 * time.Second
 )
+
+var (
+	Running int32 = 1
+	Stop    int32 = 0
+)
+
+var (
+	Concurrency = 10
+	Interval    = 10 * time.Minute
+)

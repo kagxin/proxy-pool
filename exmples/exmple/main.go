@@ -3,6 +3,7 @@ package main
 import (
 	"proxy-pool/check"
 	"proxy-pool/fetch"
+	"proxy-pool/fetch/fetcher"
 	"proxy-pool/http"
 	"proxy-pool/stroage"
 	"time"
@@ -10,14 +11,14 @@ import (
 
 func main() {
 	mem := stroage.NewMemoryStroage()
-	manager := fetch.New(mem, 60, 10*time.Minute)
-	manager.Register([]fetch.Fetcher{fetch.GetQuanWang})
-	go manager.Run()
+	manager := fetch.New(mem, fetch.ConcurrencyOption(10), fetch.IntervalOption(10*time.Minute))
+	manager.Register([]fetch.Fetcher{fetcher.GetXiChi, fetcher.GetIPKuByAPI})
 	defer manager.Stop()
+	go manager.Run()
 
-	checker := check.New(mem, 3*time.Minute, 1)
-	go checker.Run()
+	checker := check.New(mem, check.ConcurrencyOption(10), check.IntervalOption(10*time.Minute))
 	defer checker.Stop()
+	go checker.Run()
 
 	srv := http.InitHttp(mem)
 	srv.Run()

@@ -1,7 +1,8 @@
-package fetch
+package fetcher
 
 import (
 	"context"
+	"crypto/tls"
 	"io/ioutil"
 	"net/http"
 	"proxy-pool/internal"
@@ -11,6 +12,9 @@ import (
 // DoRequest 抓取页面
 func DoRequest(ctx context.Context, url string, timeout time.Duration) (int, []byte, error) {
 	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
 		Timeout: timeout,
 	}
 	request, err := http.NewRequestWithContext(ctx, "GET", url, nil)

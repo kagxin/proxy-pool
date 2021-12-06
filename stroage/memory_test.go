@@ -10,18 +10,16 @@ import (
 func TestMemoryStore(t *testing.T) {
 	ms := &MemoryStroage{}
 	p := &ProxyEntity{
-		Schema:     "http",
-		Proxy:      "1234",
-		Source:     "asdf",
-		CheckTime:  time.Time{},
-		CreateTime: time.Time{},
+		Schema:    "http",
+		Proxy:     "1234",
+		Source:    "asdf",
+		CheckTime: time.Time{},
 	}
 	p2 := &ProxyEntity{
-		Schema:     "http",
-		Proxy:      "12345",
-		Source:     "asdf",
-		CheckTime:  time.Time{},
-		CreateTime: time.Time{},
+		Schema:    "http",
+		Proxy:     "12345",
+		Source:    "asdf",
+		CheckTime: time.Time{},
 	}
 	ms.Put(context.Background(), p)
 	ms.Put(context.Background(), p)

@@ -4,6 +4,7 @@ import (
 	"context"
 	"proxy-pool/stroage"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"proxy-pool/internal"
@@ -11,10 +12,25 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+type Option func(*Checker)
+
+func IntervalOption(interval time.Duration) Option {
+	return func(c *Checker) {
+		c.interval = interval
+	}
+}
+
+func ConcurrencyOption(concurrency int) Option {
+	return func(c *Checker) {
+		c.conChan = make(chan struct{}, concurrency)
+	}
+}
+
 // Checker 检查IP可用性
 type Checker struct {
 	interval time.Duration // 检查时间间隔
 	stroage  stroage.Stroage
+	runState int32
 
 	ctx     context.Context
 	cancel  context.CancelFunc
@@ -22,15 +38,20 @@ type Checker struct {
 }
 
 // New
-func New(s stroage.Stroage, interval time.Duration, concurrency int) *Checker {
+func New(s stroage.Stroage, oo ...Option) *Checker {
+
 	ctx, cancel := context.WithCancel(context.Background())
-	return &Checker{
-		interval: interval,
+	checker := &Checker{
+		interval: internal.Interval,
 		stroage:  s,
 		ctx:      ctx,
 		cancel:   cancel,
-		conChan:  make(chan struct{}, concurrency),
+		conChan:  make(chan struct{}, internal.Concurrency),
 	}
+	for _, o := range oo {
+		o(checker)
+	}
+	return checker
 }
 
 func (c *Checker) Run() {
@@ -51,6 +72,11 @@ func (c *Checker) Stop() {
 }
 
 func (c *Checker) run() {
+	if atomic.LoadInt32(&c.runState) == internal.Running {
+		log.Errorln("Checker already run")
+		return
+	}
+	atomic.StoreInt32(&c.runState, internal.Running)
 	log.Info("check run!!\n")
 	var wg sync.WaitGroup
 	proxys, err := c.stroage.GetAll(c.ctx)

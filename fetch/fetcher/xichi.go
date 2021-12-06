@@ -1,4 +1,4 @@
-package fetch
+package fetcher
 
 import (
 	"bytes"
@@ -11,9 +11,9 @@ import (
 	"github.com/antchfx/htmlquery"
 )
 
-func GetQuanWang(ctx context.Context) (proxys []*stroage.ProxyEntity, err error) {
-	KuaiDaiLiFetchURL := "https://www.kuaidaili.com/free"
-	_, buf, err := DoRequest(ctx, KuaiDaiLiFetchURL, time.Second*5)
+func GetXiChi(ctx context.Context) (proxys []*stroage.ProxyEntity, err error) {
+	GetXiChiFetchURL := "https://www.kuaidaili.com/free"
+	_, buf, err := DoRequest(ctx, GetXiChiFetchURL, time.Second*5)
 	if err != nil {
 		return nil, err
 	}
@@ -31,11 +31,10 @@ func GetQuanWang(ctx context.Context) (proxys []*stroage.ProxyEntity, err error)
 		}
 		schema := htmlquery.InnerText(htmlquery.FindOne(h, `./td[4]`))
 		proxys = append(proxys, &stroage.ProxyEntity{
-			Schema:     schema,
-			Proxy:      fmt.Sprintf("%s:%d", ipStr, port),
-			Source:     KuaiDaiLiFetchURL,
-			CheckTime:  time.Now(),
-			CreateTime: time.Now(),
+			Schema:    schema,
+			Proxy:     fmt.Sprintf("%s:%d", ipStr, port),
+			Source:    GetXiChiFetchURL,
+			CheckTime: time.Now(),
 		})
 	}
 	return
