@@ -17,7 +17,7 @@
 |字段|类型|描述|
 |-|-|-|
 |`schema`|string|代理类型|
-|`proxy`|int|代理端口|
+|`proxy`|int| 代理 |
 |`source`|string|代理爬取地址|
 |`check_time`|string|上次检查可用性的时间|
 
