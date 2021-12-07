@@ -19,7 +19,7 @@
 |`/getall`|GET|获取所有可用代理||
 
 ### 快速开始
-* 下载项目的 docker-compose 文件
+* git clone 项目
 ```bash
 docker-compose up
 ```
@@ -30,16 +30,13 @@ docker-compose up
 ### 已添加代理源
 |代理源|地址|
 |-|-|
-|全网代理|[地址](http://www.goubanjia.com/)|
 |西刺|[地址](https://www.kuaidaili.com/free)|
 |IP海|[地址](http://www.ip3366.net/)|
 |IP库|[地址](https://ip.jiangxianli.com/)|
 
-> 其他免费代理源欢迎issue提出
+> 其他免费代理源欢迎 PR
 
 ### TODO
 - [ ] 增加更多免费代理源
-- [x] `proxy/get` 接口随机返回可用代理
-- [x] log 模块替换
 - [x] 添加 readthedocs
 - [x] github actions workflow (CI)

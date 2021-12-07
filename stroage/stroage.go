@@ -9,7 +9,7 @@ import (
 type (
 	ProxyEntity struct {
 		Schema    string    `json:"schema"`
-		Proxy     string    `json:"string"` // 唯一标示
+		Proxy     string    `json:"proxy"` // 唯一标示
 		Source    string    `json:"source"`
 		CheckTime time.Time `json:"check_time"`
 	}

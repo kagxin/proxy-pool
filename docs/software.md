@@ -1,61 +1,60 @@
 # 关于代码结构
 ### 设计
 代理池的代码主体分为3部分
-![image](./proxy_pool.png)
-#### API 服务
-http 接口服务对应main文件  `cmd/api/main.go`，使用`gin`框架做接口服务。
+![image](./proxy_pool.svg)
+#### HTTP 服务
+使用 `gin` 框架做 HTTP 接口服务
 
-#### 周期检查代理可用性服务
-周期性检查所有代理的可用性使用，检查可用性的原理：通过代理发送请求到httpbin.org，
+#### Check
+周期性检查所有代理的可用性使用，检查可用性的原理：通过代理发送请求到 httpbin.org，
 检查是否正常响应
 
-#### 周期拉取并解析免费代理服务
-主要功能是从各个提供免费代理的站点，爬取免费的proxy，然后进行检查后入库
+#### Fetch
+主要功能是从各个提供免费代理的站点，爬取免费的 proxy，然后进行检查后入库
+
+#### Stroage
+proxy 数据存储
 
 ### 代码目录结构
 ```bash
 .
-├── api         # 接口相关代码
-│   ├── api.go
-│   ├── eno.go
-│   └── service.go
-├── check          # 检查ip可用性部分代码
-│   ├── check.go
-│   ├── check_test.go
-│   └── validators.go
-├── cmd            # 主程序启动文件
-│   ├── api
-│   │   └── main.go
-│   └── scheduler
-│       └── main.go
-├── config         # 配置文件解析及配置文件
-│   ├── conf.yaml
-│   ├── config.go
-│   └── config_test.go
-├── databases      # 数据库链接及orm初始化
-│   ├── databases.go
-│   └── databases_test.go
-
-├── docs           # readthedocs 文档
-│   ├── about.md
-│   ├── index.md
-│   └── software.md
-├── fetch          # 拉取并解析免费代理相关代码
-│   ├── common.go
-│   ├── fetch.go
-│   └── fetch_test.go
+├── check           # 代理定期校验
+│   ├── check.go
+│   └── check_test.go
+├── docs            # 文档
+│   ├── about.md
+│   ├── index.md
+│   ├── proxy_pool.png
+│   └── software.md
+├── exmples         # 启动示例
+│   └── exmple
+│       └── main.go
+├── fetch
+│   ├── fetcher     # 代理网页爬取
+│   │   ├── fetcher_test.go
+│   │   ├── ipku.go
+│   │   ├── ipyun.go
+│   │   ├── request.go
+│   │   ├── request_test.go
+│   │   └── xichi.go
+│   ├── manager.go  # fetcher 并行管理
+│   └── manager_test.go
+├── http            # get getall api 接口
+│   └── api.go
+├── internal        # 枚举及校验部分函数
+│   ├── meta.go
+│   ├── validator.go
+│   └── validator_test.go
+├── pkg
+└── stroage          # stroage interface{} 定义及 内存 stroage 实现
+    ├── memory.go
+    ├── memory_test.go
+    └── stroage.go
+├── Dockerfile
+├── docker-compose.yaml
+├── LICENSE
+├── README.md
+├── mkdocs.yml
 ├── go.mod
 ├── go.sum
-├── mkdocs.yml    # readthedocs mkdocs 文档配置文件
-├── model         # model 定义相关
-│   ├── common.go
-│   ├── httpbin.go
-│   └── proxy.go
-├── pkgs          # 通用代码库
-└── schema.sql    # 数据库表结构定义文件
-├── Dockerfile    # dockerfile
-├── docker-compose.yaml # docker-compose 文件
-├── LICENSE       #  mit license
-├── README.md     # README
-├── build.sh      # build脚本
 ```
