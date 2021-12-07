@@ -13,7 +13,7 @@ import (
 
 // GetIPYunDaiLi 获取ip海的免费代理
 func GetIPYunDaiLi(ctx context.Context) (proxys []*stroage.ProxyEntity, err error) {
-	IPYunDaiLiFetchURL := ""
+	IPYunDaiLiFetchURL := "http://www.ip3366.net/"
 
 	_, buf, err := DoRequest(ctx, IPYunDaiLiFetchURL, time.Second*5)
 	if err != nil {

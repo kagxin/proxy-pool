@@ -12,7 +12,7 @@ import (
 func main() {
 	mem := stroage.NewMemoryStroage()
 	manager := fetch.New(mem, fetch.ConcurrencyOption(10), fetch.IntervalOption(10*time.Minute))
-	manager.Register([]fetch.Fetcher{fetcher.GetXiChi, fetcher.GetIPKuByAPI})
+	manager.Register([]fetch.Fetcher{fetcher.GetXiChi, fetcher.GetIPKuByAPI, fetcher.GetIPYunDaiLi})
 	defer manager.Stop()
 	go manager.Run()
 

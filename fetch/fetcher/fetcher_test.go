@@ -6,12 +6,17 @@ import (
 	"testing"
 )
 
-func Test_GetQuanWang(t *testing.T) {
-	proxys, err := GetQuanWang(context.Background())
+func Test_GetIPKuByAPI(t *testing.T) {
+	proxys, err := GetIPKuByAPI(context.Background())
 	fmt.Printf("%+v, %+v", proxys, err)
 }
 
-func Test_GetIPKuByAPI(t *testing.T) {
-	proxys, err := GetIPKuByAPI(context.Background())
+func Test_GetIPYunDaiLi(t *testing.T) {
+	proxys, err := GetIPYunDaiLi(context.Background())
+	fmt.Printf("%+v, %+v", proxys, err)
+}
+
+func Test_GetXiChi(t *testing.T) {
+	proxys, err := GetXiChi(context.Background())
 	fmt.Printf("%+v, %+v", proxys, err)
 }
