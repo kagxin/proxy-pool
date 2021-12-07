@@ -1,7 +1,7 @@
 # 关于代码结构
 ### 设计
 代理池的代码主体分为3部分
-![image](./proxy_pool.svg)
+![image](./proxy_pool.png)
 #### HTTP 服务
 使用 `gin` 框架做 HTTP 接口服务
 
