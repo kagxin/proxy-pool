@@ -78,6 +78,7 @@ func (fm *FetcherManager) run() {
 		return
 	}
 	atomic.StoreInt32(&fm.runState, internal.Running)
+	defer atomic.StoreInt32(&fm.runState, internal.Stop)
 
 	log.Infof("FetcherManager fetch begin!!\n")
 	var wg sync.WaitGroup

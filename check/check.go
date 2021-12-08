@@ -77,6 +77,7 @@ func (c *Checker) run() {
 		return
 	}
 	atomic.StoreInt32(&c.runState, internal.Running)
+	defer atomic.StoreInt32(&c.runState, internal.Stop)
 	log.Info("check run!!\n")
 	var wg sync.WaitGroup
 	proxys, err := c.stroage.GetAll(c.ctx)
